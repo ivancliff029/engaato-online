@@ -1,6 +1,19 @@
 import React from 'react';
 
-const Modal = ({ isOpen, onClose, product }) => {
+interface Product {
+  imageUrl: string;
+  title: string;
+  description: string;
+  price: string;
+}
+
+interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  product?: Product | null;
+}
+
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, product }) => {
   if (!isOpen) return null;
 
   return (
@@ -21,3 +34,4 @@ const Modal = ({ isOpen, onClose, product }) => {
 };
 
 export default Modal;
+

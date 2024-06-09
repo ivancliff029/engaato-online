@@ -5,14 +5,22 @@ import { collection, getDocs } from 'firebase/firestore';
 import { getDownloadURL, ref } from 'firebase/storage';
 import Modal from './Modal';
 
-const LatestArrivals = () => {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
+interface Product {
+  id: string;
+  imageUrl: string;
+  title: string;
+  description: string;
+  price: string;
+}
 
-  const handleProductClick = (product) => {
+const LatestArrivals: React.FC = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null as string | null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  const handleProductClick = (product: Product) => {
     setSelectedProduct(product);
     setIsModalOpen(true);
   };
@@ -31,7 +39,7 @@ const LatestArrivals = () => {
           querySnapshot.docs.map(async (doc) => {
             const productData = doc.data();
             const imageUrl = await getImageUrl(productData.imageUrl);
-            return { id: doc.id, ...productData, imageUrl };
+            return { id: doc.id, ...productData, imageUrl } as Product;
           })
         );
 
@@ -39,7 +47,13 @@ const LatestArrivals = () => {
         setLoading(false);
       } catch (error) {
         console.error('Error fetching products:', error);
-        setError(error.message);
+        if (typeof error === 'string') {
+          console.error('Error: ', error);
+          setError(error);
+        } else {
+          console.error('Unknown error occurred.');
+          setError("An unknown error occurred."); // Assuming you want to set a default error message
+        }        
         setLoading(false);
       }
     };
@@ -47,7 +61,7 @@ const LatestArrivals = () => {
     fetchProducts();
   }, []);
 
-  const getImageUrl = async (path) => {
+  const getImageUrl = async (path: string): Promise<string | null> => {
     try {
       if (path) {
         console.log('Fetching image URL for path:', path);  
@@ -101,6 +115,3 @@ const LatestArrivals = () => {
 };
 
 export default LatestArrivals;
-
-
-
