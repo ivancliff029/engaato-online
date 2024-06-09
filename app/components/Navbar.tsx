@@ -14,7 +14,7 @@ const Navbar: React.FC = () => {
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         
         <div className="flex-shrink-0 mr-4">
-          <img src="/logo.svg" alt="Logo" className="h-8" />
+          <img src="/img/logo.png" alt="Logo" className="h-8" />
         </div>
         <div className="block lg:hidden">
           <button

@@ -16,7 +16,7 @@ const ThirtyPercentOff: React.FC = () => {
             <p className="text-sm text-gray-600 mb-2">
                 The Jordan 1 Chicago Red is an iconic sneaker known for its bold colors and timeless design. With a 30% discount, it's a rare opportunity to own a piece of sneaker history at a more affordable price. Perfect for fans of Jordan Brand and sneaker enthusiasts alike, this sale is not to be missed.
             </p>
-            <p className="text-lg font-semibold">$99.99 <del className="text-red-500">$129.99</del></p>
+            <p className="text-lg font-semibold">150,000 Ugx <del className="text-red-500"> 200,000 Ugx</del></p>
             <button className="bg-blue-500 text-white px-4 py-2 rounded-md mt-2 hover:bg-blue-600 focus:outline-none">Shop Now</button>
           </div>
         </div>
