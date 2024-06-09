@@ -52,7 +52,7 @@ const LatestArrivals: React.FC = () => {
           setError(error);
         } else {
           console.error('Unknown error occurred.');
-          setError("An unknown error occurred."); // Assuming you want to set a default error message
+          setError("An unknown error occurred.");
         }        
         setLoading(false);
       }

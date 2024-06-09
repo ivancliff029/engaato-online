@@ -5,11 +5,9 @@ const ThirtyPercentOff: React.FC = () => {
     <div className="container mx-auto mt-8">
       <h2 className="text-3xl font-bold mb-4">30% Off</h2>
       <div className="flex">
-        {/* Image */}
         <div className="w-1/2 pr-4">
           <img src="/img/shoe6.jpg" alt="Product Full" className="w-full rounded-lg shadow-md" />
         </div>
-        {/* Description */}
         <div className="w-1/2 pl-4">
           <div className="border rounded-lg overflow-hidden shadow-md p-4 h-full">
             <h3 className="text-lg font-semibold mb-2">Jordan 1 Chicago Red</h3>
