@@ -3,11 +3,24 @@ import React, { useState, useEffect } from 'react';
 import { db, storage } from '../lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import { getDownloadURL, ref } from 'firebase/storage';
+import Modal from './Modal';
 
 const LatestArrivals = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
+  const handleProductClick = (product) => {
+    setSelectedProduct(product);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedProduct(null);
+  };
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -55,26 +68,39 @@ const LatestArrivals = () => {
       <h2 className="text-3xl font-bold mb-4">Latest Arrivals</h2>
       {loading && <p>Please wait, fetching data...</p>}
       {error && <p>Error: {error}</p>}
+      <div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {products.map((product) => (
-          <div key={product.id} className="border rounded-lg overflow-hidden">
+           <div
+           key={product.id}
+           className="border rounded-lg overflow-hidden flex flex-col cursor-pointer"
+           onClick={() => handleProductClick(product)}
+         >
             {product.imageUrl && (
               <img
                 src={product.imageUrl}
                 alt={product.title}
-                className="w-full"
+                className="w-full h-48 object-cover cursor-pointer"
               />
             )}
-            <div className="p-4">
-              <h3 className="text-lg font-semibold mb-2">{product.title}</h3>
-              <p className="text-sm text-gray-600 mb-2">{product.description}</p>
-              <p className="text-lg font-semibold">{product.price} Ugx</p>
+            <div className="p-4 flex flex-col justify-between flex-grow">
+              <div>
+                <h3 className="text-lg font-semibold mb-2">{product.title}</h3>
+                <p className="text-sm text-gray-600 mb-2">{product.description}</p>
+              </div>
+              <p className="text-lg font-semibold mt-2">{product.price} Ugx</p>
             </div>
           </div>
         ))}
       </div>
+      <Modal isOpen={isModalOpen} onClose={handleCloseModal} product={selectedProduct} />
+    </div>
+
     </div>
   );
 };
 
 export default LatestArrivals;
+
+
+
