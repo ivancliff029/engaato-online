@@ -2,7 +2,7 @@ import React from 'react';
 
 const ThirtyPercentOff: React.FC = () => {
   return (
-    <div className="container mx-auto mt-8">
+    <div className="container mx-auto mt-8 p-4">
       <h2 className="text-3xl font-bold mb-4">30% Off</h2>
       <div className="flex">
         <div className="w-1/2 pr-4">

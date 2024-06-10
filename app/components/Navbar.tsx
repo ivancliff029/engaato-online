@@ -41,8 +41,7 @@ const Navbar: React.FC = () => {
         <div className={`lg:flex ${isOpen ? 'block' : 'hidden'} lg:items-center`}>
           <div className="text-white lg:flex lg:space-x-4">
             <a href="#" className="block mt-4 lg:inline-block lg:mt-0 hover:text-gray-400">Home</a>
-            <a href="#" className="block mt-4 lg:inline-block lg:mt-0 hover:text-gray-400">About</a>
-            <a href="#" className="block mt-4 lg:inline-block lg:mt-0 hover:text-gray-400">Services</a>
+            <a href="#" className="block mt-4 lg:inline-block lg:mt-0 hover:text-gray-400">Store</a>
             <a href="#" className="block mt-4 lg:inline-block lg:mt-0 hover:text-gray-400">Contact</a>
           </div>
         </div>
