@@ -1,4 +1,5 @@
 import React from 'react';
+import { FaWhatsapp } from 'react-icons/fa'; // Import the WhatsApp icon
 
 interface Product {
   imageUrl: string;
@@ -18,8 +19,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, product }) => {
 
   const handleBuyClick = () => {
     if (product) {
-      const message = `Hello, I'm interested in buying the product "${product.title}" priced at ${product.price} Ugx.`;
-      const phoneNumber = '+256778054598';
+      const message = `Hello, I'm interested in buying the product "${product.title}" priced at ${product.price} Ugx.\n\nDescription: ${product.description}\n\nImage: ${product.imageUrl}`;
+      const phoneNumber = '+256778054598'; // Replace with the phone number of the person in charge
       const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
       window.open(whatsappUrl, '_blank');
     }
@@ -36,10 +37,10 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, product }) => {
             <p className="text-sm text-gray-600 mb-4">{product.description}</p>
             <p className="text-lg font-semibold">{product.price} Ugx</p>
             <button 
-              className="mt-4 px-4 py-2 bg-green-500 text-white rounded" 
+              className="mt-4 px-4 py-2 bg-green-500 text-white rounded flex items-center justify-center" 
               onClick={handleBuyClick}
             >
-              Buy
+              <FaWhatsapp className="mr-2" /> Buy
             </button>
           </div>
         )}
