@@ -19,6 +19,8 @@ const LatestArrivals: React.FC = () => {
   const [error, setError] = useState<string | null>(null as string | null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [productsPerPage] = useState(6);
 
   const handleProductClick = (product: Product) => {
     setSelectedProduct(product);
@@ -77,6 +79,11 @@ const LatestArrivals: React.FC = () => {
     }
   };
 
+  // Get current products
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
+
   return (
     <div className="container mx-auto mt-8 p-4">
       <h2 className="text-3xl font-bold mb-4">Latest Arrivals</h2>
@@ -84,7 +91,7 @@ const LatestArrivals: React.FC = () => {
       {error && <p>Error: {error}</p>}
       <div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {products.map((product) => (
+          {currentProducts.map((product) => (
             <div
               key={product.id}
               className="border rounded-lg overflow-hidden flex flex-col cursor-pointer"
