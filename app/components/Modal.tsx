@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 import { FaWhatsapp, FaShoppingCart } from 'react-icons/fa'; 
 
@@ -42,10 +43,6 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, product }) => {
                 onClick={handleBuyClick}
               >
                 <FaWhatsapp className="mr-2" /> Buy
-              </button>
-              <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded flex items-center justify-center">
-                <FaShoppingCart className="mr-2" />
-                Add to Cart
               </button>
             </div>
            
