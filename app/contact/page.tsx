@@ -6,6 +6,7 @@ import { addDoc, collection } from 'firebase/firestore';
 import Navbar from '../components/Navbar';
 
 const ContactForm: React.FC = () => {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
@@ -18,12 +19,14 @@ const ContactForm: React.FC = () => {
 
     try {
       await addDoc(collection(db, 'contacts'), {
+        name,
         email,
         subject,
         message,
         timestamp: new Date(),
       });
 
+      setName('');
       setEmail('');
       setSubject('');
       setMessage('');
@@ -46,6 +49,17 @@ const ContactForm: React.FC = () => {
             Got a question about our sneakers? Want to share feedback on our latest styles? Need help with sizing or shipping? Reach out and let us know how we can step up your sneaker game!
           </p>
           <form onSubmit={handleSubmit} className="space-y-8">
+          <div>
+              <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Your Name</label>
+              <input
+                type="text"
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                required
+              />
+            </div>
             <div>
               <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Your email</label>
               <input
