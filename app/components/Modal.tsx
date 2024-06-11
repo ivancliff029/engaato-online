@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaWhatsapp } from 'react-icons/fa'; // Import the WhatsApp icon
+import { FaWhatsapp, FaShoppingCart } from 'react-icons/fa'; 
 
 interface Product {
   imageUrl: string;
@@ -20,7 +20,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, product }) => {
   const handleBuyClick = () => {
     if (product) {
       const message = `Hello, I'm interested in buying the product "${product.title}" priced at ${product.price} Ugx.\n\nDescription: ${product.description}\n\nImage: ${product.imageUrl}`;
-      const phoneNumber = '+256778054598'; // Replace with the phone number of the person in charge
+      const phoneNumber = '+256778054598'; 
       const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
       window.open(whatsappUrl, '_blank');
     }
@@ -36,12 +36,19 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, product }) => {
             <h3 className="text-xl font-semibold mb-2">{product.title}</h3>
             <p className="text-sm text-gray-600 mb-4">{product.description}</p>
             <p className="text-lg font-semibold">{product.price} Ugx</p>
-            <button 
-              className="mt-4 px-4 py-2 bg-green-500 text-white rounded flex items-center justify-center" 
-              onClick={handleBuyClick}
-            >
-              <FaWhatsapp className="mr-2" /> Buy
-            </button>
+            <div className="mt-4 flex space-x-2">
+              <button 
+                className="mt-4 px-4 py-2 bg-green-500 text-white rounded flex items-center justify-center" 
+                onClick={handleBuyClick}
+              >
+                <FaWhatsapp className="mr-2" /> Buy
+              </button>
+              <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded flex items-center justify-center">
+                <FaShoppingCart className="mr-2" />
+                Add to Cart
+              </button>
+            </div>
+           
           </div>
         )}
       </div>

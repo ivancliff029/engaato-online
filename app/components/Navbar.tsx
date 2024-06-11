@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,7 +13,6 @@ const Navbar: React.FC = () => {
   return (
     <nav className="bg-gray-800 p-4">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
-        
         <div className="flex-shrink-0 mr-4">
           <img src="/img/logo.png" alt="Logo" className="h-8" />
         </div>
@@ -37,15 +37,19 @@ const Navbar: React.FC = () => {
             </svg>
           </button>
         </div>
-
         <div className={`lg:flex ${isOpen ? 'block' : 'hidden'} lg:items-center`}>
           <div className="text-white lg:flex lg:space-x-4">
-            <a href="#" className="block mt-4 lg:inline-block lg:mt-0 hover:text-gray-400">Home</a>
-            <a href="#" className="block mt-4 lg:inline-block lg:mt-0 hover:text-gray-400">Store</a>
-            <a href="#" className="block mt-4 lg:inline-block lg:mt-0 hover:text-gray-400">Contact</a>
+            <Link href="/" passHref legacyBehavior>
+              <a className="block mt-4 lg:inline-block lg:mt-0 hover:text-gray-400">Home</a>
+            </Link>
+            <Link href="/store" passHref legacyBehavior>
+              <a className="block mt-4 lg:inline-block lg:mt-0 hover:text-gray-400">Store</a>
+            </Link>
+            <Link href="/contact" passHref legacyBehavior>
+              <a className="block mt-4 lg:inline-block lg:mt-0 hover:text-gray-400">Contact</a>
+            </Link>
           </div>
         </div>
-
         <div className="ml-auto">
           <button className="flex items-center text-white focus:outline-none">
             <svg
