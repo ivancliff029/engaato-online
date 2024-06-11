@@ -2,6 +2,7 @@ import Navbar from "./components/Navbar";
 import Welcome from "./components/Welcome";
 import LatestArrivals from "./components/LatestArrivals";
 import ThirtyPercentOff from "./components/ThirtyPercentOff";
+import Footer from "./components/Footer";
 
 export default function Home() {
   return (
@@ -10,6 +11,7 @@ export default function Home() {
       <Welcome />
       <LatestArrivals />
       <ThirtyPercentOff />
+      <Footer />
     </>
   );
 }
