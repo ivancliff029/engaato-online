@@ -4,6 +4,7 @@ import { FiSend } from 'react-icons/fi';
 import { db } from '../lib/firebase';
 import { addDoc, collection } from 'firebase/firestore';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
 const ContactForm: React.FC = () => {
   const [name, setName] = useState('');
@@ -111,6 +112,7 @@ const ContactForm: React.FC = () => {
           </form>
         </div>
       </section>
+      <Footer />
     </>
   );
 };
