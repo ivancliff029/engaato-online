@@ -4,6 +4,7 @@ import { db, storage } from '../lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import { getDownloadURL, ref } from 'firebase/storage';
 import ProductCard from './ProductCard';
+import ClipLoader from "react-spinners/ClipLoader";
 
 interface Product {
   id: string;
@@ -60,13 +61,20 @@ const ProductsList: React.FC = () => {
   return (
     <div className="container mx-auto mt-8 p-4">
       <h2 className="text-3xl font-bold mb-4">Products</h2>
-      {loading && <p>Please wait, fetching data...</p>}
-      {error && <p>Error: {error}</p>}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </div>
+      {loading ? (
+        <div className="flex justify-center items-center h-64">
+          <ClipLoader size={50} color={"#123abc"} loading={loading} />
+        </div>
+      ) : (
+        <>
+          {error && <p>Error: {error}</p>}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 };
