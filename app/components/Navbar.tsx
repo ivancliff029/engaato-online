@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { FaTimes,FaShoppingCart  } from 'react-icons/fa';
+import { FaTimes, FaShoppingCart } from 'react-icons/fa';
 import { useCart } from '../context/CartContext';
 
 interface Product {
@@ -11,7 +11,6 @@ interface Product {
   description: string;
   price: string;
 }
-
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -27,7 +26,7 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="bg-gray-600 p-4">
+    <nav className="bg-gray-600 p-4 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         <div className="flex-shrink-0 mr-4">
           <img src="/img/logo.png" alt="Logo" className="h-8" />
@@ -67,21 +66,20 @@ const Navbar: React.FC = () => {
           </div>
         </div>
         <div className="ml-auto relative">
-        <button onClick={toggleCart} className="flex items-center text-white focus:outline-none">
+          <button onClick={toggleCart} className="flex items-center text-white focus:outline-none">
             <FaShoppingCart className="h-6 w-6 mr-2" />
-              
             {getCartItemCount() > 0 && (
-            <span className="ml-1 bg-red-600 text-white text-xs rounded-full px-2 py-1">
-            {getCartItemCount()}
-          </span>
-                )}
-        </button>
+              <span className="ml-1 bg-red-600 text-white text-xs rounded-full px-2 py-1">
+                {getCartItemCount()}
+              </span>
+            )}
+          </button>
           {isCartOpen && (
-            <div className="absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-lg">
+            <div className="absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-lg z-50">
               <div className="p-4">
                 {cart.length > 0 ? (
                   <>
-                    {cart.map((item: Product, index: number) => (  
+                    {cart.map((item: Product, index: number) => (
                       <div key={index} className="flex items-center justify-between mb-2">
                         <div className="flex items-center">
                           <img src={item.imageUrl} alt={item.title} className="w-8 h-8 mr-2" />
