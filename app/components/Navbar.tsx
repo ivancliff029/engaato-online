@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { FaTimes } from 'react-icons/fa';
+import { FaTimes,FaShoppingCart  } from 'react-icons/fa';
 import { useCart } from '../context/CartContext';
 
 interface Product {
@@ -67,34 +67,21 @@ const Navbar: React.FC = () => {
           </div>
         </div>
         <div className="ml-auto relative">
-          <button onClick={toggleCart} className="flex items-center text-white focus:outline-none">
-            <svg
-              className="h-6 w-6 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M4 4v3h16V4M8 14h8l-2 5H10l-2-5zm0 0h0"
-              ></path>
-            </svg>
-            Shopping
+        <button onClick={toggleCart} className="flex items-center text-white focus:outline-none">
+            <FaShoppingCart className="h-6 w-6 mr-2" />
+              
             {getCartItemCount() > 0 && (
-              <span className="ml-1 bg-red-600 text-white text-xs rounded-full px-2 py-1">
-                {getCartItemCount()}
-              </span>
-            )}
-          </button>
+            <span className="ml-1 bg-red-600 text-white text-xs rounded-full px-2 py-1">
+            {getCartItemCount()}
+          </span>
+                )}
+        </button>
           {isCartOpen && (
             <div className="absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-lg">
               <div className="p-4">
                 {cart.length > 0 ? (
                   <>
-                    {cart.map((item: Product, index: number) => (  // Specify types for item and index
+                    {cart.map((item: Product, index: number) => (  
                       <div key={index} className="flex items-center justify-between mb-2">
                         <div className="flex items-center">
                           <img src={item.imageUrl} alt={item.title} className="w-8 h-8 mr-2" />
