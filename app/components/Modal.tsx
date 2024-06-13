@@ -21,6 +21,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, product }) => {
   const [quantity, setQuantity] = useState(1);
   const { addToCart } = useCart();
   const [isAddedToCart, setIsAddedToCart] = useState(false);
+  const [totalPrice, setTotalPrice] = useState(Number(product?.price) || 0); 
 
   if (!isOpen || !product) return null;
 
@@ -37,7 +38,13 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, product }) => {
     const url = `https://wa.me/+256778054598?text=${encodedMessage}`;
     window.open(url, '_blank');
     console.log(`Buy ${quantity} of ${product.title} with WhatsApp`);
-  };  
+  };
+
+  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newQuantity = Number(e.target.value);
+    setQuantity(newQuantity);
+    setTotalPrice(Number(product.price) * newQuantity); 
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
@@ -59,11 +66,12 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, product }) => {
                 type="number"
                 id="quantity"
                 value={quantity}
-                onChange={(e) => setQuantity(Number(e.target.value))}
+                onChange={handleQuantityChange}
                 className="border px-2 py-1 w-16"
                 min="1"
               />
             </div>
+            <p className="text-sm font-semibold mb-4">Total Price: {totalPrice} Ugx</p>
             <button
               onClick={handleAddToCart}
               className={`bg-green-500 text-white px-4 py-2 rounded flex items-center mb-2 transition-all duration-200 ${isAddedToCart ? 'bg-green-600' : ''}`}

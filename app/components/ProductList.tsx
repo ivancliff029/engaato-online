@@ -5,6 +5,8 @@ import { collection, getDocs } from 'firebase/firestore';
 import { getDownloadURL, ref } from 'firebase/storage';
 import ProductCard from './ProductCard';
 import ClipLoader from "react-spinners/ClipLoader";
+import Modal from './Modal'; 
+import { useCart } from '../context/CartContext'; 
 
 interface Product {
   id: string;
@@ -83,6 +85,10 @@ const ProductsList: React.FC = () => {
             ))}
           </div>
         </>
+      )}
+
+      {selectedProduct && (
+        <Modal isOpen={!!selectedProduct} onClose={handleCloseModal} product={selectedProduct} />
       )}
     </div>
   );
