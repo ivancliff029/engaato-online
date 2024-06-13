@@ -5,6 +5,7 @@ import { db } from '../lib/firebase';
 import { addDoc, collection } from 'firebase/firestore';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { CartProvider } from '../context/CartContext';
 
 const ContactForm: React.FC = () => {
   const [name, setName] = useState('');
@@ -42,6 +43,7 @@ const ContactForm: React.FC = () => {
 
   return (
     <>
+    <CartProvider>
       <Navbar />
       <section className="bg-white dark:bg-gray-900">
         <div className="py-8 lg:py-16 px-4 mx-auto max-w-screen-md">
@@ -113,6 +115,7 @@ const ContactForm: React.FC = () => {
         </div>
       </section>
       <Footer />
+      </CartProvider>
     </>
   );
 };
