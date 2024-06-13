@@ -6,11 +6,10 @@ import LatestArrivals from "./components/LatestArrivals";
 import ThirtyPercentOff from "./components/ThirtyPercentOff";
 import Footer from "./components/Footer";
 import { CartProvider, useCart } from './context/CartContext';
+import './styles/styles.css';
 
 export default function Home() {
   
-  document.body.style.backgroundColor = 'white';
-
   return (
     <CartProvider>
       <Navbar />
