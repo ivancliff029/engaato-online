@@ -18,6 +18,7 @@ const ProductsList: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -58,6 +59,14 @@ const ProductsList: React.FC = () => {
     }
   };
 
+  const handleProductClick = (product: Product) => {
+    setSelectedProduct(product);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedProduct(null);
+  };
+
   return (
     <div className="container mx-auto mt-8 p-4">
       <h2 className="text-3xl font-bold mb-4">Products</h2>
@@ -70,7 +79,7 @@ const ProductsList: React.FC = () => {
           {error && <p>Error: {error}</p>}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <ProductCard key={product.id} product={product} onClick={handleProductClick} />
             ))}
           </div>
         </>

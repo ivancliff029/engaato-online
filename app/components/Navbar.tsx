@@ -1,13 +1,29 @@
 "use client";
-
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { FaTimes } from 'react-icons/fa';
+import { useCart } from '../context/CartContext';
+
+interface Product {
+  id: string;
+  imageUrl: string;
+  title: string;
+  description: string;
+  price: string;
+}
+
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const { getCartItemCount, cart, removeFromCart, getTotalPrice } = useCart();
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
+  };
+
+  const toggleCart = () => {
+    setIsCartOpen(!isCartOpen);
   };
 
   return (
@@ -50,8 +66,8 @@ const Navbar: React.FC = () => {
             </Link>
           </div>
         </div>
-        <div className="ml-auto">
-          <button className="flex items-center text-white focus:outline-none">
+        <div className="ml-auto relative">
+          <button onClick={toggleCart} className="flex items-center text-white focus:outline-none">
             <svg
               className="h-6 w-6 mr-2"
               fill="none"
@@ -67,7 +83,45 @@ const Navbar: React.FC = () => {
               ></path>
             </svg>
             Shopping
+            {getCartItemCount() > 0 && (
+              <span className="ml-1 bg-red-600 text-white text-xs rounded-full px-2 py-1">
+                {getCartItemCount()}
+              </span>
+            )}
           </button>
+          {isCartOpen && (
+            <div className="absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-lg">
+              <div className="p-4">
+                {cart.length > 0 ? (
+                  <>
+                    {cart.map((item: Product, index: number) => (  // Specify types for item and index
+                      <div key={index} className="flex items-center justify-between mb-2">
+                        <div className="flex items-center">
+                          <img src={item.imageUrl} alt={item.title} className="w-8 h-8 mr-2" />
+                          <span className="text-gray-800">{item.title}</span>
+                        </div>
+                        <button
+                          onClick={() => removeFromCart(item.id)}
+                          className="text-red-600 focus:outline-none"
+                        >
+                          <FaTimes />
+                        </button>
+                      </div>
+                    ))}
+                    <div className="flex justify-between items-center mt-4">
+                      <span className="text-gray-800 font-bold">Total:</span>
+                      <span className="text-gray-800 font-bold">{getTotalPrice()} Ugx</span>
+                    </div>
+                    <button className="bg-green-500 text-white px-4 py-2 rounded mt-4 w-full">
+                      Checkout
+                    </button>
+                  </>
+                ) : (
+                  <p className="text-gray-800">Cart is empty</p>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </nav>

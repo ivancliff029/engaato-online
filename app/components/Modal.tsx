@@ -1,8 +1,10 @@
 "use client";
-import React from 'react';
-import { FaWhatsapp, FaShoppingCart } from 'react-icons/fa'; 
+import React, { useState } from 'react';
+import { FaWhatsapp, FaShoppingCart } from 'react-icons/fa';
+import { useCart } from '../context/CartContext';
 
 interface Product {
+  id: string;
   imageUrl: string;
   title: string;
   description: string;
@@ -12,42 +14,70 @@ interface Product {
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  product?: Product | null;
+  product: Product | null;
 }
 
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, product }) => {
-  if (!isOpen) return null;
+  const [quantity, setQuantity] = useState(1);
+  const { addToCart } = useCart();
+  const [isAddedToCart, setIsAddedToCart] = useState(false);
 
-  const handleBuyClick = () => {
-    if (product) {
-      const message = `Hello, I'm interested in buying the product "${product.title}" priced at ${product.price} Ugx.\n\nDescription: ${product.description}\n\nImage: ${product.imageUrl}`;
-      const phoneNumber = '+256778054598'; 
-      const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-      window.open(whatsappUrl, '_blank');
-    }
+  if (!isOpen || !product) return null;
+
+  const handleAddToCart = () => {
+    addToCart(product, quantity);
+    setIsAddedToCart(true);
+    setTimeout(() => setIsAddedToCart(false), 1000);
+    console.log(`Added ${quantity} of ${product.title} to cart`);
   };
 
+  const handleBuyWithWhatsApp = () => {
+    const message = `Hello! I would like to buy ${quantity} of ${product.title}. Image: ${product.imageUrl}`;
+    const encodedMessage = encodeURIComponent(message);
+    const url = `https://wa.me/+256778054598?text=${encodedMessage}`;
+    window.open(url, '_blank');
+    console.log(`Buy ${quantity} of ${product.title} with WhatsApp`);
+  };  
+
   return (
-    <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-4 max-w-lg w-full">
-        <button className="text-gray-600 float-right" onClick={onClose}>×</button>
-        {product && (
-          <div>
-            <img src={product.imageUrl} alt={product.title} className="w-full h-64 object-cover mb-4" />
-            <h3 className="text-xl font-semibold mb-2">{product.title}</h3>
-            <p className="text-sm text-gray-600 mb-4">{product.description}</p>
-            <p className="text-lg font-semibold">{product.price} Ugx</p>
-            <div className="mt-4 flex space-x-2">
-              <button 
-                className="mt-4 px-4 py-2 bg-green-500 text-white rounded flex items-center justify-center" 
-                onClick={handleBuyClick}
-              >
-                <FaWhatsapp className="mr-2" /> Buy
-              </button>
-            </div>
-           
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+      <div className="bg-white p-8 rounded-lg max-w-lg w-full relative">
+        <button className="absolute top-2 right-2 text-gray-600" onClick={onClose}>
+          &times;
+        </button>
+        <div className="flex flex-col md:flex-row">
+          <div className="md:w-1/2">
+            <img src={product.imageUrl} alt={product.title} className="w-full h-auto" />
           </div>
-        )}
+          <div className="md:w-1/2 p-4">
+            <h3 className="text-2xl font-bold mb-2">{product.title}</h3>
+            <p className="mb-4">{product.description}</p>
+            <p className="text-xl font-semibold mb-4">{product.price} Ugx</p>
+            <div className="flex items-center mb-4">
+              <label htmlFor="quantity" className="mr-2">Quantity:</label>
+              <input
+                type="number"
+                id="quantity"
+                value={quantity}
+                onChange={(e) => setQuantity(Number(e.target.value))}
+                className="border px-2 py-1 w-16"
+                min="1"
+              />
+            </div>
+            <button
+              onClick={handleAddToCart}
+              className={`bg-green-500 text-white px-4 py-2 rounded flex items-center mb-2 transition-all duration-200 ${isAddedToCart ? 'bg-green-600' : ''}`}
+            >
+              <FaShoppingCart className="mr-2" /> Add to Cart
+            </button>
+            <button
+              onClick={handleBuyWithWhatsApp}
+              className="bg-green-500 text-white px-4 py-2 rounded flex items-center transition-all duration-200 hover:bg-green-600"
+            >
+              <FaWhatsapp className="mr-2" /> WhatsApp
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
