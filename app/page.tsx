@@ -8,15 +8,16 @@ import Footer from "./components/Footer";
 import { CartProvider, useCart } from './context/CartContext';
 
 export default function Home() {
+  
+  document.body.style.backgroundColor = 'white';
+
   return (
-    <>
     <CartProvider>
       <Navbar />
       <Welcome />
       <LatestArrivals />
       <ThirtyPercentOff />
       <Footer />
-      </CartProvider>
-    </>
+    </CartProvider>
   );
 }

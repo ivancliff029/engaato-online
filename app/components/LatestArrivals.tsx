@@ -86,7 +86,7 @@ const LatestArrivals: React.FC = () => {
   const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
 
   return (
-    <div className="container mx-auto mt-8 p-4">
+    <div className="container mx-auto mt-8 p-4" style={{ backgroundColor: 'white' }}>
       <h2 className="text-3xl font-bold mb-4">Latest Arrivals</h2>
       {loading ? (
         <div className="flex justify-center items-center h-64">
@@ -100,7 +100,7 @@ const LatestArrivals: React.FC = () => {
               {currentProducts.map((product) => (
                 <div
                   key={product.id}
-                  className="border rounded-lg overflow-hidden flex flex-col cursor-pointer"
+                  className="border rounded-lg overflow-hidden flex flex-col cursor-pointer shadow-md hover:shadow-lg"
                   onClick={() => handleProductClick(product)}
                 >
                   {product.imageUrl && (
@@ -110,7 +110,7 @@ const LatestArrivals: React.FC = () => {
                       className="w-full h-48 object-cover cursor-pointer"
                     />
                   )}
-                  <div className="p-4 flex flex-col justify-between flex-grow">
+                  <div className="p-4 flex flex-col justify-between flex-grow bg-white rounded-b-lg">
                     <div>
                       <h3 className="text-lg font-semibold mb-2">{product.title}</h3>
                       <p className="text-sm text-gray-600 mb-2">{product.description}</p>

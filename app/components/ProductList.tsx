@@ -111,7 +111,7 @@ const ProductsList: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto mt-8 p-4">
+    <div className="container mx-auto mt-8 p-4" style={{ backgroundColor: 'white' }}>
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-3xl font-bold">Products</h2>
         <div className="flex items-center">

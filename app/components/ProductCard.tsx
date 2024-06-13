@@ -1,5 +1,4 @@
-"use client";
-import React, { useState } from 'react';
+import React from 'react';
 import Modal from './Modal';
 import { FaWhatsapp, FaShoppingCart } from 'react-icons/fa';
 
@@ -18,12 +17,13 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
   return (
-    <div className="border rounded-lg overflow-hidden flex flex-col" onClick={() => onClick(product)}>
+    <div className="border rounded-lg overflow-hidden flex flex-col shadow-md hover:shadow-lg">
       {product.imageUrl && (
         <img
           src={product.imageUrl}
           alt={product.title}
           className="w-full h-48 object-cover cursor-pointer"
+          onClick={() => onClick(product)}
         />
       )}
       <div className="p-4 flex flex-col justify-between flex-grow">
