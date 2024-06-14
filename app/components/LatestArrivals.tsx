@@ -5,14 +5,7 @@ import { collection, getDocs } from 'firebase/firestore';
 import { getDownloadURL, ref } from 'firebase/storage';
 import Modal from './Modal';
 import ClipLoader from "react-spinners/ClipLoader";
-
-interface Product {
-  id: string;
-  imageUrl: string;
-  title: string;
-  description: string;
-  price: string;
-}
+import { Product } from '../types/types';
 
 const LatestArrivals: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
