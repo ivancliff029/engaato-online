@@ -67,8 +67,14 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, product }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center" onClick={handleCloseModal}>
-      <div className="bg-white p-8 rounded-lg max-w-lg w-full relative overflow-auto max-h-full" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+      <div
+        className="bg-white p-8 rounded-lg max-w-lg w-full relative overflow-auto max-h-full"
+        style={{
+          marginTop: window.innerWidth <= 768 ? '100px' : '0', // Adjust the threshold as needed
+        }}
+        onClick={handleCloseModal}
+      >
         <button className="absolute top-2 right-2 text-gray-600" onClick={onClose}>
           &times;
         </button>
@@ -94,34 +100,38 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, product }) => {
               </select>
             </div>
           </div>
-          <div className="md:w-1/2 p-4">
-            <h3 className="text-2xl font-bold mb-2">{product.title}</h3>
-            <p className="mb-4">{product.description}</p>
-            <p className="text-xl font-semibold mb-4">{product.price} Ugx</p>
-            <div className="flex items-center mb-4">
-              <label htmlFor="quantity" className="mr-2">Quantity:</label>
-              <input
-                type="number"
-                id="quantity"
-                value={quantity}
-                onChange={handleQuantityChange}
-                className="border px-2 py-1 w-16"
-                min="1"
-              />
+          <div className="md:w-1/2 p-4 flex flex-col justify-between">
+            <div>
+              <h3 className="text-2xl font-bold mb-2">{product.title}</h3>
+              <p className="mb-4">{product.description}</p>
+              <p className="text-xl font-semibold mb-4">{product.price} Ugx</p>
+              <div className="flex items-center mb-4">
+                <label htmlFor="quantity" className="mr-2">Quantity:</label>
+                <input
+                  type="number"
+                  id="quantity"
+                  value={quantity}
+                  onChange={handleQuantityChange}
+                  className="border px-2 py-1 w-16"
+                  min="1"
+                />
+              </div>
+              <p className="text-sm font-semibold mb-4">Total Price: {totalPrice} Ugx</p>
             </div>
-            <p className="text-sm font-semibold mb-4">Total Price: {totalPrice} Ugx</p>
-            <button
-              onClick={handleAddToCart}
-              className={`bg-green-500 text-white px-4 py-2 rounded flex items-center mb-2 transition-all duration-200 ${isAddedToCart ? 'bg-green-600' : ''}`}
-            >
-              <FaShoppingCart className="mr-2" /> Add to Cart
-            </button>
-            <button
-              onClick={handleBuyWithWhatsApp}
-              className="bg-green-500 text-white px-4 py-2 rounded flex items-center transition-all duration-200 hover:bg-green-600"
-            >
-              <FaWhatsapp className="mr-2" /> WhatsApp
-            </button>
+            <div className="flex">
+              <button
+                onClick={handleAddToCart}
+                className={`bg-green-500 text-white px-4 py-2 rounded flex items-center mb-2 transition-all duration-200 ${isAddedToCart ? 'bg-green-600' : ''}`}
+              >
+                <FaShoppingCart className="mr-2" /> Add to Cart
+              </button>
+              <button
+                onClick={handleBuyWithWhatsApp}
+                className="bg-green-500 text-white px-4 py-2 rounded flex items-center mb-2 ml-2 transition-all duration-200 hover:bg-green-600"
+              >
+                <FaWhatsapp className="mr-2" /> WhatsApp
+              </button>
+            </div>
           </div>
         </div>
       </div>
