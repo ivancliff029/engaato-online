@@ -2,16 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaWhatsapp, FaShoppingCart } from 'react-icons/fa';
 import { useCart } from '../context/CartContext';
-
-interface Product {
-  id: string;
-  imageUrl: string;
-  title: string;
-  description: string;
-  price: string;
-  colors: string[];
-  sizes: string[];
-}
+import { Product } from '../types/types';
 
 interface ModalProps {
   isOpen: boolean;
