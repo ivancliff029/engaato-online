@@ -3,14 +3,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { FaTimes, FaShoppingCart } from 'react-icons/fa';
 import { useCart } from '../context/CartContext';
-
-interface Product {
-  id: string;
-  imageUrl: string;
-  title: string;
-  description: string;
-  price: string;
-}
+import { Product } from '../types/types';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);

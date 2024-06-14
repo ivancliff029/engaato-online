@@ -1,14 +1,7 @@
 import React from 'react';
 import Modal from './Modal';
 import { FaWhatsapp, FaShoppingCart } from 'react-icons/fa';
-
-interface Product {
-  id: string;
-  imageUrl: string;
-  title: string;
-  description: string;
-  price: string;
-}
+import { Product } from '../types/types';
 
 interface ProductCardProps {
   product: Product;
