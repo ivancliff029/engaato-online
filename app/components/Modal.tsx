@@ -123,7 +123,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, product }) => {
                 onClick={handleAddToCart}
                 className={`bg-green-500 text-white px-4 py-2 rounded flex items-center mb-2 transition-all duration-200 ${isAddedToCart ? 'bg-green-600' : ''}`}
               >
-                <FaShoppingCart className="mr-2" /> Add to Cart
+                <FaShoppingCart className="mr-2" />+Cart
               </button>
               <button
                 onClick={handleBuyWithWhatsApp}
