@@ -60,9 +60,15 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, product }) => {
     setSelectedSize(e.target.value);
   };
 
+  const handleCloseModal = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div className="bg-white p-8 rounded-lg max-w-lg w-full relative">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center" onClick={handleCloseModal}>
+      <div className="bg-white p-8 rounded-lg max-w-lg w-full relative" onClick={(e) => e.stopPropagation()}>
         <button className="absolute top-2 right-2 text-gray-600" onClick={onClose}>
           &times;
         </button>
