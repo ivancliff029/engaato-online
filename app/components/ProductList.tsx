@@ -7,14 +7,7 @@ import ProductCard from './ProductCard';
 import ClipLoader from "react-spinners/ClipLoader";
 import Modal from './Modal';
 import { useCart } from '../context/CartContext';
-
-interface Product {
-  id: string;
-  imageUrl: string;
-  title: string;
-  description: string;
-  price: string;
-}
+import { Product } from '../types/types';
 
 const ProductsList: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
