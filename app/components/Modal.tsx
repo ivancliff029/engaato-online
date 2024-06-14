@@ -68,7 +68,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, product }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center" onClick={handleCloseModal}>
-      <div className="bg-white p-8 rounded-lg max-w-lg w-full relative" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-white p-8 rounded-lg max-w-lg w-full relative overflow-auto max-h-full" onClick={(e) => e.stopPropagation()}>
         <button className="absolute top-2 right-2 text-gray-600" onClick={onClose}>
           &times;
         </button>
