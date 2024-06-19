@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { db, storage } from '../lib/firebase';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, where } from 'firebase/firestore';
 import { getDownloadURL, ref } from 'firebase/storage';
 import ProductCard from './ProductCard';
 import ClipLoader from "react-spinners/ClipLoader";
@@ -15,6 +15,7 @@ const ProductsList: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [viewType, setViewType] = useState<'grid' | 'list'>('grid'); // For changing view type
+  const [searchTerm, setSearchTerm] = useState(''); // State for search term
   const { getCartItemCount, cart, removeFromCart, getTotalPrice } = useCart();
 
   useEffect(() => {
@@ -103,6 +104,27 @@ const ProductsList: React.FC = () => {
     }
   };
 
+  const handleSearch = async () => {
+    setLoading(true);
+    try {
+      const productCollection = collection(db, 'products');
+      const querySnapshot = await getDocs(query(productCollection, where('title', '>=', searchTerm), where('title', '<=', searchTerm + '\uf8ff')));
+      const productsData = await Promise.all(
+        querySnapshot.docs.map(async (doc) => {
+          const productData = doc.data();
+          const imageUrl = await getImageUrl(productData.imageUrl);
+          return { id: doc.id, ...productData, imageUrl } as Product;
+        })
+      );
+      setProducts(productsData);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error searching products:', error);
+      setError('An error occurred while searching products.');
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="container mx-auto mt-8 p-4" style={{ backgroundColor: 'white' }}>
       <div className="flex justify-between items-center mb-4">
@@ -124,7 +146,7 @@ const ProductsList: React.FC = () => {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="2"
-                  d="M4 6h16M4 12h16M4 18h16"
+                  d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z"
                 ></path>
               </svg>
             ) : (
@@ -139,14 +161,42 @@ const ProductsList: React.FC = () => {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="2"
-                  d="M6 4v16M12 4v16m6-8v4H6v-4h12z"
+                  d="M4 6h16M4 12h16M4 18h16"
                 ></path>
               </svg>
             )}
           </button>
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search products..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="bg-white border border-gray-300 rounded-md py-1 px-2 text-sm text-gray-700 focus:outline-none"
+            />
+            <button
+              onClick={handleSearch}
+              className="absolute right-0 top-0 mt-1 mr-1 text-gray-600"
+            >
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M15 17l5 5m-5-5A7 7 0 1 0 3 10a7 7 0 0 0 12 7z"
+                ></path>
+              </svg>
+            </button>
+          </div>
           <select
             onChange={(e) => handleFilterChange(e.target.value)}
-            className="bg-white border border-gray-300 rounded-md py-1 px-2 text-sm text-gray-700 focus:outline-none"
+            className="bg-white border border-gray-300 rounded-md py-1 px-2 text-sm text-gray-700 focus:outline-none ml-4"
           >
             <option value="">Filter by</option>
             <option value="latest">Latest</option>
