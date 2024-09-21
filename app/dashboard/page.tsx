@@ -52,9 +52,9 @@ const Sidebar: React.FC<SidebarProps> = ({ links, activeLinkId, onLinkClick, isS
 const MainContent: React.FC<MainContentProps> = ({ content, toggleSidebar, isSidebarOpen }) => {
   return (
     <div
-      className={`p-8 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300 transition-all duration-300 flex-1 ${
-        isSidebarOpen ? 'ml-64' : 'ml-0'
-      }`} // Use margin-left to position next to the sidebar
+      className={`p-8 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300 transition-all duration-300 ${
+        isSidebarOpen ? 'w-full md:ml-64' : 'w-full'
+      }`} // Expand to full width when sidebar is closed
     >
       {/* Button to toggle the sidebar */}
       <button
