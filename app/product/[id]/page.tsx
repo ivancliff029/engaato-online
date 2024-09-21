@@ -1,4 +1,4 @@
-"use client"
+"use client"; // This makes sure the component is rendered on the client-side
 import { db } from '../../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { Product } from '../../types/types';
@@ -12,21 +12,21 @@ interface ProductDetailsProps {
 }
 
 const ProductDetails = async ({ params }: ProductDetailsProps) => {
+  // Fetch the product data
   const product = await getProduct(params.id);
 
   if (!product) {
-    notFound(); // Redirects to 404 if product not found
+    notFound(); // Redirects to 404 if the product is not found
   }
 
-  // Component structure
   return (
-    <div className="container mx-auto mt-8 p-4 ">
+    <div className="container mx-auto mt-8 p-4">
       {/* Back Button */}
       <BackButton />
 
-      {/* Flex container for image and details */}
+      {/* Product Info */}
       <div className="flex flex-col md:flex-row border rounded-lg shadow-md p-4">
-        {/* Left side - Image */}
+        {/* Image Section */}
         <div className="md:w-1/2 mb-4 md:mb-0 md:pr-4">
           <img
             src={product.imageUrl}
@@ -35,12 +35,12 @@ const ProductDetails = async ({ params }: ProductDetailsProps) => {
           />
         </div>
 
-        {/* Right side - Product details */}
+        {/* Product Details */}
         <div className="md:w-1/2 flex flex-col justify-center">
           <h2 className="text-2xl font-bold mb-4">{product.title}</h2>
           <p className="text-lg mb-4">{product.description}</p>
-          
-          {/* Discount Information */}
+
+          {/* Price and Discount */}
           <p className="text-xl font-semibold mb-2">
             {product.price} Ugx <span className="text-red-500">15% OFF</span>
           </p>
@@ -49,7 +49,9 @@ const ProductDetails = async ({ params }: ProductDetailsProps) => {
           </p>
 
           {/* Shoe Size Dropdown */}
-          <label htmlFor="shoe-size" className="text-lg font-semibold mb-2">Shoe Size:</label>
+          <label htmlFor="shoe-size" className="text-lg font-semibold mb-2">
+            Shoe Size:
+          </label>
           <select id="shoe-size" className="border rounded p-2 mb-4 dark:bg-gray-900">
             <option value="39">39</option>
             <option value="40">40</option>
@@ -94,7 +96,7 @@ const BackButton = () => {
   );
 };
 
-// Add to Cart Component
+// Add to Cart Button Component
 const AddToCartButton = ({ product }: { product: Product }) => {
   const [addedToCart, setAddedToCart] = useState(false);
 
@@ -114,9 +116,7 @@ const AddToCartButton = ({ product }: { product: Product }) => {
           Add to Cart
         </button>
       ) : (
-        <button
-          className="flex items-center bg-green-500 text-white px-4 py-2 rounded mt-4"
-        >
+        <button className="flex items-center bg-green-500 text-white px-4 py-2 rounded mt-4">
           <FaCheck className="mr-2" /> Added to Cart
         </button>
       )}
