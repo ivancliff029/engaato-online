@@ -57,7 +57,7 @@ const LatestArrivals: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto mt-8 p-4 dark:bg-gray-900">
+    <div className="container mx-auto mt-8 p-4 dark:bg-white-900">
       <h2 className="text-3xl font-bold mb-4">Latest Arrivals</h2>
       {loading ? (
         <div className="flex justify-center items-center h-64">
