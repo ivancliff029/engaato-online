@@ -8,7 +8,7 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
   return (
-    <div className="border rounded-lg overflow-hidden flex flex-col shadow-md hover:shadow-lg">
+    <div className="border rounded-lg overflow-hidden flex flex-col shadow-md hover:shadow-lg ">
       {product.imageUrl && (
         <img
           src={product.imageUrl}

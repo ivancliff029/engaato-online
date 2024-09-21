@@ -11,7 +11,7 @@ const ProductPage = async () => {
 
   return (
     <div className="bg-white min-h-screen">
-      <div className="mx-10 px-5">
+      <div className="mx-10 px-5 bg-white">
         <h1 className="text-3xl font-bold mb-4 mt-5">Store</h1>
         <ProductsList products={products} />
       </div>
