@@ -1,8 +1,8 @@
 "use client";
-import React, { useState } from 'react';
-import { FaBars, FaTimes } from 'react-icons/fa'; // Importing icons
+import React, { useState, useEffect } from 'react';
+import { FaBars, FaTimes } from 'react-icons/fa';
+import { useAuth } from '../context/AuthContext'; // Adjust the import based on your file structure
 
-// Define the props type for the Sidebar and MainContent components
 interface SidebarLink {
   id: string;
   label: string;
@@ -26,18 +26,14 @@ interface MainContentProps {
 const Sidebar: React.FC<SidebarProps> = ({ links, activeLinkId, onLinkClick, isSidebarOpen }) => {
   return (
     <nav
-      className={`bg-gray-800 dark:bg-gray-900 text-white h-screen transition-transform transform ${
-        isSidebarOpen ? 'w-64' : 'w-0'
-      } overflow-hidden`} // Adjust width to 0 when closed
+      className={`bg-gray-800 dark:bg-gray-900 text-white h-screen transition-transform transform ${isSidebarOpen ? 'w-64' : 'w-0'} overflow-hidden`}
     >
-      <ul className={`${isSidebarOpen ? 'block' : 'hidden'}`}> {/* Hide content when closed */}
+      <ul className={`${isSidebarOpen ? 'block' : 'hidden'}`}>
         {links.map((link) => (
           <li key={link.id}>
             <button
               onClick={() => onLinkClick(link.id)}
-              className={`w-full text-left py-4 px-6 hover:bg-gray-700 dark:hover:bg-gray-800 ${
-                activeLinkId === link.id ? 'bg-gray-700 dark:bg-gray-800' : ''
-              }`}
+              className={`w-full text-left py-4 px-6 hover:bg-gray-700 dark:hover:bg-gray-800 ${activeLinkId === link.id ? 'bg-gray-700 dark:bg-gray-800' : ''}`}
             >
               {link.label}
             </button>
@@ -48,24 +44,16 @@ const Sidebar: React.FC<SidebarProps> = ({ links, activeLinkId, onLinkClick, isS
   );
 };
 
-// MainContent Component with Dark Mode support and sidebar toggle button
+// MainContent Component
 const MainContent: React.FC<MainContentProps> = ({ content, toggleSidebar, isSidebarOpen }) => {
   return (
-    <div
-      className={`p-8 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300 transition-all duration-300 ${
-        isSidebarOpen ? 'w-full md:ml-64' : 'w-full'
-      }`} // Expand to full width when sidebar is closed
-    >
-      {/* Button to toggle the sidebar */}
+    <div className={`p-8 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300 transition-all duration-300 ${isSidebarOpen ? 'w-full md:ml-64' : 'w-full'}`}>
       <button
         onClick={toggleSidebar}
         className="bg-blue-500 text-white px-4 py-2 rounded-md mb-4 focus:outline-none hover:bg-blue-600 flex items-center"
       >
-        {/* Conditionally render the icons for open/close */}
         {isSidebarOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
       </button>
-
-      {/* Content */}
       {content}
     </div>
   );
@@ -73,70 +61,170 @@ const MainContent: React.FC<MainContentProps> = ({ content, toggleSidebar, isSid
 
 // Dashboard Component
 const Dashboard: React.FC = () => {
-  // State to keep track of the currently active link
   const [activeLinkId, setActiveLinkId] = useState<string>('home');
-  
-  // State to handle sidebar visibility
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
+  const { currentUser } = useAuth();
 
-  // Links for the sidebar
   const links: SidebarLink[] = [
-    { id: 'home', label: 'Home', content: <HomeContent /> },
+    { id: 'home', label: 'Home', content: <HomeContent userEmail={currentUser?.email || undefined} /> },
     { id: 'profile', label: 'Profile', content: <ProfileContent /> },
     { id: 'settings', label: 'Settings', content: <SettingsContent /> },
     { id: 'reports', label: 'Reports', content: <ReportsContent /> },
   ];
-
-  // Find the active content based on the active link
+  
   const activeLink = links.find((link) => link.id === activeLinkId);
 
-  // Function to toggle sidebar visibility
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
   return (
     <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900">
-      {/* Sidebar */}
       <Sidebar
         links={links}
         activeLinkId={activeLinkId}
         onLinkClick={(id: string) => setActiveLinkId(id)}
         isSidebarOpen={isSidebarOpen}
       />
-
-      {/* Main Content */}
       <MainContent content={activeLink?.content} toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
     </div>
   );
 };
 
-// Example Components for different sections of the dashboard
-const HomeContent: React.FC = () => (
+// HomeContent Component
+const HomeContent: React.FC<{ userEmail: string | undefined }> = ({ userEmail }) => (
   <div>
     <h1 className="text-3xl font-bold">Home</h1>
-    <p>Welcome to the home page of your dashboard!</p>
+    <p>Welcome, {userEmail}</p>
   </div>
 );
 
-const ProfileContent: React.FC = () => (
-  <div>
-    <h1 className="text-3xl font-bold">Profile</h1>
-    <p>Here you can update your profile information.</p>
-  </div>
-);
+// ProfileContent Component
+const ProfileContent: React.FC = () => {
+  const { currentUser, updateUserProfile } = useAuth();
+  const [formData, setFormData] = useState({
+    username: '',
+    firstName: '',
+    lastName: '',
+    dob: '',
+    phone: '',
+  });
+  const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
+  // Populate the form with existing user data
+  useEffect(() => {
+    if (currentUser) {
+      setFormData({
+        username: currentUser.displayName || '',
+        firstName: '',
+        lastName: '',
+        dob: '',
+        phone: '',
+      });
+    }
+  }, [currentUser]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await updateUserProfile(formData);
+      setSuccessMessage('Profile updated successfully!');
+      setErrorMessage(''); // Clear previous error message
+      clearFields(); // Optionally clear fields after success
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      setErrorMessage('Failed to update profile. Please try again.');
+      setSuccessMessage(''); // Clear previous success message
+    }
+  };
+
+  const clearFields = () => {
+    setFormData({
+      username: '',
+      firstName: '',
+      lastName: '',
+      dob: '',
+      phone: '',
+    });
+  };
+
+  return (
+    <div className="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-md">
+      <h1 className="text-3xl font-bold mb-4">Profile</h1>
+      {successMessage && <div className="text-green-600 mb-4">{successMessage}</div>}
+      {errorMessage && <div className="text-red-600 mb-4">{errorMessage}</div>}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input
+          type="text"
+          name="username"
+          placeholder="Username"
+          value={formData.username}
+          onChange={handleChange}
+          className="p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500"
+          required
+        />
+        <input
+          type="text"
+          name="firstName"
+          placeholder="First Name"
+          value={formData.firstName}
+          onChange={handleChange}
+          className="p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500"
+          required
+        />
+        <input
+          type="text"
+          name="lastName"
+          placeholder="Last Name"
+          value={formData.lastName}
+          onChange={handleChange}
+          className="p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500"
+          required
+        />
+        <input
+          type="date"
+          name="dob"
+          value={formData.dob}
+          onChange={handleChange}
+          className="p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500"
+          required
+        />
+        <input
+          type="tel"
+          name="phone"
+          placeholder="Phone Number"
+          value={formData.phone}
+          onChange={handleChange}
+          className="p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500"
+          required
+        />
+        <button type="submit" className="w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200">
+          Update Profile
+        </button>
+      </form>
+    </div>
+  );
+};
+
+// SettingsContent Component (Placeholder)
 const SettingsContent: React.FC = () => (
   <div>
     <h1 className="text-3xl font-bold">Settings</h1>
-    <p>Adjust your preferences and settings here.</p>
+    <p>Settings content goes here.</p>
   </div>
 );
 
+// ReportsContent Component (Placeholder)
 const ReportsContent: React.FC = () => (
   <div>
     <h1 className="text-3xl font-bold">Reports</h1>
-    <p>View your reports and data analytics.</p>
+    <p>Reports content goes here.</p>
   </div>
 );
 

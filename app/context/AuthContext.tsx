@@ -1,13 +1,16 @@
+// AuthContext.tsx
 "use client";
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 import { app } from '../lib/firebase'; 
 import { useRouter } from 'next/navigation'; 
+import { getFirestore, doc, setDoc } from 'firebase/firestore';
 
 interface AuthContextType {
   currentUser: User | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  updateUserProfile: (data: { username: string; firstName: string; lastName: string; dob: string; phone: string; }) => Promise<void>;
   error: string | null; 
 }
 
@@ -23,39 +26,47 @@ export const useAuth = () => {
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [error, setError] = useState<string | null>(null); // State to store error messages
+  const [error, setError] = useState<string | null>(null);
   const auth = getAuth(app);
-  const router = useRouter(); // Get the Next.js router
+  const router = useRouter();
+  const db = getFirestore(app); // Initialize Firestore
 
-  // Handles user state on page reload or change
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
     });
-    return unsubscribe; // Clean up subscription on unmount
+    return unsubscribe;
   }, [auth]);
 
-  // Login function using Firebase Authentication
   const login = async (email: string, password: string) => {
     try {
-      setError(null); // Reset any previous error
+      setError(null);
       await signInWithEmailAndPassword(auth, email, password);
     } catch (err) {
       console.error('Login error', err);
-      setError('Login failed. Please check your credentials.'); // Update error state
-      throw err; // Optionally rethrow for further handling
+      setError('Login failed. Please check your credentials.');
+      throw err;
     }
   };
 
-  // Logout function with redirection to the homepage
   const logout = async () => {
     try {
-      setError(null); // Reset any previous error
+      setError(null);
       await signOut(auth);
-      router.push('/'); // Redirect to the homepage after logout
+      router.push('/');
     } catch (err) {
       console.error('Logout error', err);
-      setError('Logout failed. Please try again.'); // Update error state
+      setError('Logout failed. Please try again.');
+    }
+  };
+
+  const updateUserProfile = async (data: { username: string; firstName: string; lastName: string; dob: string; phone: string; }) => {
+    if (currentUser) {
+      try {
+        await setDoc(doc(db, 'users', currentUser.uid), data, { merge: true });
+      } catch (error) {
+        console.error("Error updating user profile: ", error);
+      }
     }
   };
 
@@ -63,7 +74,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     currentUser,
     login,
     logout,
-    error, // Provide the error state to the context
+    updateUserProfile,
+    error,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
