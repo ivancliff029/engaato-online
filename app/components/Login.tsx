@@ -1,18 +1,40 @@
 "use client";
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '../context/AuthContext'; // Import the AuthContext
+import { GoogleAuthProvider, signInWithPopup, getAuth } from 'firebase/auth';
 
-// Define the props type (if any)
-interface LoginProps {
-  
-}
+interface LoginProps {}
 
-const Login: React.FC<LoginProps> = ({  }) => {
+const Login: React.FC<LoginProps> = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const { login } = useAuth(); // Get login function from AuthContext
+  const auth = getAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    setError(null);
+
+    try {
+      // Use the login function from AuthContext
+      await login(email, password);
+      router.push('/dashboard');
+    } catch (err) {
+      setError('Invalid email or password');
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+      router.push('/dashboard');
+    } catch (error) {
+      setError('Google sign-in failed');
+    }
   };
 
   return (
@@ -46,6 +68,7 @@ const Login: React.FC<LoginProps> = ({  }) => {
               required
             />
           </div>
+          {error && <p className="text-red-500 text-xs italic mb-4">{error}</p>}
           <div className="flex items-center justify-between">
             <button
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
@@ -53,8 +76,17 @@ const Login: React.FC<LoginProps> = ({  }) => {
             >
               Sign In
             </button>
+            <a href="/signup" className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800">
+              Sign up here
+            </a>
           </div>
         </form>
+        <button
+          onClick={handleGoogleLogin}
+          className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded mt-4 w-full"
+        >
+          Sign In with Google
+        </button>
       </div>
     </div>
   );

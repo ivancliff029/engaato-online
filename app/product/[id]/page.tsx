@@ -20,12 +20,12 @@ const ProductDetails = async ({ params }: ProductDetailsProps) => {
   }
 
   return (
-    <div className="container mx-auto mt-8 p-4">
+    <div className="container mx-auto mt-8 p-4 dark:bg-gray-900">
       {/* Back Button */}
       <BackButton />
 
       {/* Product Info */}
-      <div className="flex flex-col md:flex-row border rounded-lg shadow-md p-4">
+      <div className="flex flex-col md:flex-row border rounded-lg shadow-md p-4 dark:bg-gray-800 dark:border-gray-700">
         {/* Image Section */}
         <div className="md:w-1/2 mb-4 md:mb-0 md:pr-4">
           <img
@@ -37,22 +37,26 @@ const ProductDetails = async ({ params }: ProductDetailsProps) => {
 
         {/* Product Details */}
         <div className="md:w-1/2 flex flex-col justify-center">
-          <h2 className="text-2xl font-bold mb-4">{product.title}</h2>
-          <p className="text-lg mb-4">{product.description}</p>
+          <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-200">
+            {product.title}
+          </h2>
+          <p className="text-lg mb-4 text-gray-700 dark:text-gray-400">
+            {product.description}
+          </p>
 
           {/* Price and Discount */}
-          <p className="text-xl font-semibold mb-2">
+          <p className="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-200">
             {product.price} Ugx <span className="text-red-500">15% OFF</span>
           </p>
-          <p className="text-sm text-gray-500 mb-4 line-through">
+          <p className="text-sm text-gray-500 mb-4 line-through dark:text-gray-400">
             Original Price: {(product.price * 1.15).toFixed(2)} Ugx
           </p>
 
           {/* Shoe Size Dropdown */}
-          <label htmlFor="shoe-size" className="text-lg font-semibold mb-2">
+          <label htmlFor="shoe-size" className="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-200">
             Shoe Size:
           </label>
-          <select id="shoe-size" className="border rounded p-2 mb-4 dark:bg-gray-900">
+          <select id="shoe-size" className="border rounded p-2 mb-4 dark:bg-gray-900 dark:text-gray-200">
             <option value="39">39</option>
             <option value="40">40</option>
             <option value="41">41</option>
@@ -88,7 +92,7 @@ const BackButton = () => {
   return (
     <button
       onClick={() => router.back()} // Navigates back to the previous page
-      className="flex items-center mb-4 bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"
+      className="flex items-center mb-4 bg-gray-200 px-4 py-2 rounded hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200"
     >
       <FaArrowLeft className="mr-2" /> {/* Icon for back */}
       Go Back
@@ -110,13 +114,13 @@ const AddToCartButton = ({ product }: { product: Product }) => {
     <>
       {!addedToCart ? (
         <button
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mt-4"
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mt-4 dark:bg-blue-700 dark:hover:bg-blue-800"
           onClick={handleAddToCart}
         >
           Add to Cart
         </button>
       ) : (
-        <button className="flex items-center bg-green-500 text-white px-4 py-2 rounded mt-4">
+        <button className="flex items-center bg-green-500 text-white px-4 py-2 rounded mt-4 dark:bg-green-700">
           <FaCheck className="mr-2" /> Added to Cart
         </button>
       )}

@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { CartProvider } from "./context/CartContext";
+import { AuthProvider } from "./context/AuthContext";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -20,17 +21,21 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} flex flex-col min-h-screen`}>
+      <body className={`${inter.className} flex flex-col min-h-screen bg-white dark:bg-gray-900`}>
+        <AuthProvider>
+
         <CartProvider>
           {/* Navbar at the top of every page */}
           <Navbar />
         
           {/* Main content of the page */}
-          <main className="flex-grow dark:bg-gray-900">{children}</main>
+          <main className="flex-grow bg-white dark:bg-gray-900">{children}</main>
         
           {/* Footer at the bottom of every page */}
           <Footer />
         </CartProvider>
+
+        </AuthProvider>
       </body>
     </html>
   );

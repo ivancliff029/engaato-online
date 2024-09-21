@@ -57,20 +57,20 @@ const LatestArrivals: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto mt-8 p-4 dark:bg-white-900">
-      <h2 className="text-3xl font-bold mb-4">Latest Arrivals</h2>
+    <div className="container mx-auto mt-8 p-4 bg-white dark:bg-gray-900">
+      <h2 className="text-3xl font-bold mb-4 text-gray-900 dark:text-white">Latest Arrivals</h2>
       {loading ? (
         <div className="flex justify-center items-center h-64">
           <ClipLoader size={50} color={"#123abc"} loading={loading} />
         </div>
       ) : (
         <>
-          {error && <p>Error: {error}</p>}
+          {error && <p className="text-red-500 dark:text-red-400">Error: {error}</p>}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {products.map((product) => (
               <div
                 key={product.id}
-                className="border rounded-lg overflow-hidden flex flex-col cursor-pointer shadow-md hover:shadow-lg"
+                className="border rounded-lg overflow-hidden flex flex-col cursor-pointer shadow-md hover:shadow-lg dark:bg-gray-800 dark:border-gray-700"
                 onClick={() => handleProductClick(product)}
               >
                 {product.imageUrl && (
@@ -80,12 +80,12 @@ const LatestArrivals: React.FC = () => {
                     className="w-full h-48 object-cover"
                   />
                 )}
-                <div className="p-4 flex flex-col justify-between flex-grow bg-white rounded-b-lg">
+                <div className="p-4 flex flex-col justify-between flex-grow bg-white rounded-b-lg dark:bg-gray-800">
                   <div>
-                    <h3 className="text-lg font-semibold mb-2 dark:text-gray-500">{product.title}</h3>
-                    <p className="text-sm text-gray-600 mb-2 dark:text-gray-500">{product.description}</p>
+                    <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-300">{product.title}</h3>
+                    <p className="text-sm text-gray-600 mb-2 dark:text-gray-400">{product.description}</p>
                   </div>
-                  <p className="text-lg font-semibold mt-2 dark:text-gray-500">{product.price} Ugx</p>
+                  <p className="text-lg font-semibold mt-2 text-gray-900 dark:text-gray-300">{product.price} Ugx</p>
                 </div>
               </div>
             ))}
