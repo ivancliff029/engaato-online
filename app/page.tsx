@@ -3,6 +3,7 @@ import React from 'react';
 import Welcome from "./components/Welcome";
 import LatestArrivals from "./components/LatestArrivals";
 import ThirtyPercentOff from "./components/ThirtyPercentOff";
+import AboutSection from './components/AboutSection';
 import { CartProvider } from './context/CartContext';
 import './styles/styles.css';
 
@@ -10,8 +11,12 @@ export default function Home() {
   return (
     <CartProvider>
       <Welcome />
-      <LatestArrivals />
+      <AboutSection 
+        title="Engaato Online  Step into the Future" 
+        subTitle="Performance, Style, and Innovation" 
+      />
       <ThirtyPercentOff />
+      <LatestArrivals />
     </CartProvider>
   );
 }
