@@ -1,3 +1,4 @@
+// Dashboard.tsx
 "use client";
 import React, { useState, useEffect } from 'react';
 import { FaBars, FaTimes } from 'react-icons/fa';
@@ -59,48 +60,21 @@ const MainContent: React.FC<MainContentProps> = ({ content, toggleSidebar, isSid
   );
 };
 
-// Dashboard Component
-const Dashboard: React.FC = () => {
-  const [activeLinkId, setActiveLinkId] = useState<string>('home');
-  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
-  const { currentUser } = useAuth();
-
-  const links: SidebarLink[] = [
-    { id: 'home', label: 'Home', content: <HomeContent userEmail={currentUser?.email || undefined} /> },
-    { id: 'profile', label: 'Profile', content: <ProfileContent /> },
-    { id: 'settings', label: 'Settings', content: <SettingsContent /> },
-    { id: 'reports', label: 'Reports', content: <ReportsContent /> },
-  ];
-  
-  const activeLink = links.find((link) => link.id === activeLinkId);
-
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
+// HomeContent Component
+const HomeContent: React.FC<{ userEmail: string | undefined; lastName: string | undefined }> = ({ userEmail, lastName }) => {
+  const displayName = lastName || userEmail;
 
   return (
-    <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900">
-      <Sidebar
-        links={links}
-        activeLinkId={activeLinkId}
-        onLinkClick={(id: string) => setActiveLinkId(id)}
-        isSidebarOpen={isSidebarOpen}
-      />
-      <MainContent content={activeLink?.content} toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
+    <div>
+      <h1 className="text-3xl font-bold">Home</h1>
+      <p>Welcome, {displayName}</p>
+      <h2 className="text-1xl font-bold mt-5 mb-5">Cool Feature Coming Up, Wait up</h2>
     </div>
   );
 };
 
-// HomeContent Component
-const HomeContent: React.FC<{ userEmail: string | undefined }> = ({ userEmail }) => (
-  <div>
-    <h1 className="text-3xl font-bold">Home</h1>
-    <p>Welcome, {userEmail}</p>
-  </div>
-);
-
 // ProfileContent Component
-const ProfileContent: React.FC = () => {
+const ProfileContent: React.FC<{ onUpdateLastName: (lastName: string) => void }> = ({ onUpdateLastName }) => {
   const { currentUser, updateUserProfile } = useAuth();
   const [formData, setFormData] = useState({
     username: '',
@@ -135,12 +109,13 @@ const ProfileContent: React.FC = () => {
     try {
       await updateUserProfile(formData);
       setSuccessMessage('Profile updated successfully!');
-      setErrorMessage(''); // Clear previous error message
-      clearFields(); // Optionally clear fields after success
+      setErrorMessage('');
+      onUpdateLastName(formData.lastName);
+      clearFields();
     } catch (error) {
       console.error('Error updating profile:', error);
       setErrorMessage('Failed to update profile. Please try again.');
-      setSuccessMessage(''); // Clear previous success message
+      setSuccessMessage('');
     }
   };
 
@@ -227,5 +202,42 @@ const ReportsContent: React.FC = () => (
     <p>Reports content goes here.</p>
   </div>
 );
+
+// Dashboard Component
+const Dashboard: React.FC = () => {
+  const [activeLinkId, setActiveLinkId] = useState<string>('home');
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(true);
+  const { currentUser } = useAuth();
+  const [lastName, setLastName] = useState<string | undefined>(undefined);
+
+  const links: SidebarLink[] = [
+    { 
+      id: 'home', 
+      label: 'Home', 
+      content: <HomeContent userEmail={currentUser?.email ?? undefined} lastName={lastName} /> 
+    },
+    { id: 'profile', label: 'Profile', content: <ProfileContent onUpdateLastName={setLastName} /> },
+    { id: 'settings', label: 'Settings', content: <SettingsContent /> },
+    { id: 'reports', label: 'Reports', content: <ReportsContent /> },
+  ];
+  
+  const activeLink = links.find((link) => link.id === activeLinkId);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  return (
+    <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900">
+      <Sidebar
+        links={links}
+        activeLinkId={activeLinkId}
+        onLinkClick={(id: string) => setActiveLinkId(id)}
+        isSidebarOpen={isSidebarOpen}
+      />
+      <MainContent content={activeLink?.content} toggleSidebar={toggleSidebar} isSidebarOpen={isSidebarOpen} />
+    </div>
+  );
+};
 
 export default Dashboard;
