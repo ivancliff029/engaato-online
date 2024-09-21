@@ -10,6 +10,8 @@ const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+
+  // Using cart functions from CartContext
   const { getCartItemCount, cart, removeFromCart, getTotalPrice } = useCart();
 
   const toggleMenu = () => {
@@ -64,7 +66,7 @@ const Navbar: React.FC = () => {
               <Link href="/" passHref legacyBehavior>
                 <a className="block mt-4 lg:inline-block lg:mt-0 hover:text-gray-400">Home</a>
               </Link>
-              <Link href="/store" passHref legacyBehavior>
+              <Link href="/product" passHref legacyBehavior>
                 <a className="block mt-4 lg:inline-block lg:mt-0 hover:text-gray-400">Store</a>
               </Link>
               <Link href="/contact" passHref legacyBehavior>

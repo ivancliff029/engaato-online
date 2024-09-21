@@ -1,6 +1,4 @@
 import React from 'react';
-import Modal from './Modal';
-import { FaWhatsapp, FaShoppingCart } from 'react-icons/fa';
 import { Product } from '../types/types';
 
 interface ProductCardProps {
@@ -21,10 +19,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
       )}
       <div className="p-4 flex flex-col justify-between flex-grow">
         <div>
-          <h3 className="text-lg font-semibold mb-2">{product.title}</h3>
-          <p className="text-sm text-gray-600 mb-2">{product.description}</p>
+          <h3 className="text-lg font-semibold mb-2 dark:text-gray-500">{product.title}</h3>
+          <p className="text-sm text-gray-600 mb-2 dark:text-gray-500">{product.description}</p>
         </div>
-        <p className="text-lg font-semibold mt-2">{product.price} Ugx</p>
+        <p className="text-lg font-semibold mt-2 dark:text-gray-500">{product.price} Ugx</p>
       </div>
     </div>
   );
