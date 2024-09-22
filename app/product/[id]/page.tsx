@@ -73,15 +73,6 @@ const ProductDetails = async ({ params }: ProductDetailsProps) => {
           <label htmlFor="shoe-size" className="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-200">
             Shoe Size:
           </label>
-          {/* <select id="shoe-size" className="border rounded p-2 mb-4 dark:bg-gray-900 dark:text-gray-500">
-            <option value="39" className="dark:bg-gray-900 dark:text-gray-500">39</option>
-            <option value="40">40</option>
-            <option value="41">41</option>
-            <option value="42">42</option>
-            <option value="43">43</option>
-            <option value="44">44</option>
-            <option value="45">45</option>
-          </select> */}
           <div className="flex ">
             <div className="text-gray-300 border rounded px-2 cursor-pointer hover:bg-gray-400 hover:text-white mx-2">39</div>
             <div className="text-gray-300 border rounded px-2 cursor-pointer hover:bg-gray-400 hover:text-white mx-2">40</div>
