@@ -8,17 +8,33 @@ import { notFound } from 'next/navigation';
 import { FaArrowLeft, FaCheck } from 'react-icons/fa'; // Icons
 import { useCart } from '../../context/CartContext'; // Cart context
 
+
 interface ProductDetailsProps {
   params: { id: string };
 }
+interface sizeProps{
+  size:number;
+  country:string;
+}
 
 const ProductDetails = async ({ params }: ProductDetailsProps) => {
+  const [isActive, setIsActive] =useState<boolean>(true);
   // Fetch the product data
   const product = await getProduct(params.id);
 
   if (!product) {
     notFound(); // Redirects to 404 if the product is not found
   }
+
+  const shoeSize:sizeProps[]=[
+    {size:39,country:"USA"},
+    {size:40,country:"USA"},
+    {size:41,country:"USA"},
+    {size:42,country:"USA"},
+    {size:43,country:"USA"},
+    {size:44,country:"USA"},
+    {size:45,country:"USA"},
+  ]
 
   return (
     <div className="container mx-auto mt-8 p-4 dark:bg-gray-900">
@@ -57,7 +73,7 @@ const ProductDetails = async ({ params }: ProductDetailsProps) => {
           <label htmlFor="shoe-size" className="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-200">
             Shoe Size:
           </label>
-          <select id="shoe-size" className="border rounded p-2 mb-4 dark:bg-gray-900 dark:text-gray-500">
+          {/* <select id="shoe-size" className="border rounded p-2 mb-4 dark:bg-gray-900 dark:text-gray-500">
             <option value="39" className="dark:bg-gray-900 dark:text-gray-500">39</option>
             <option value="40">40</option>
             <option value="41">41</option>
@@ -65,7 +81,13 @@ const ProductDetails = async ({ params }: ProductDetailsProps) => {
             <option value="43">43</option>
             <option value="44">44</option>
             <option value="45">45</option>
-          </select>
+          </select> */}
+          <div className="flex ">
+            <div className="text-gray-300 border rounded px-2 cursor-pointer hover:bg-gray-400 hover:text-white mx-2">39</div>
+            <div className="text-gray-300 border rounded px-2 cursor-pointer hover:bg-gray-400 hover:text-white mx-2">40</div>
+            <div className="text-gray-300 border rounded px-2 cursor-pointer hover:bg-gray-400 hover:text-white mx-2">41</div>
+            <div className="text-gray-300 border rounded px-2 cursor-pointer hover:bg-gray-400 hover:text-white mx-2">45</div>
+          </div>
 
           {/* Add to Cart Button */}
           <AddToCartButton product={product} />
