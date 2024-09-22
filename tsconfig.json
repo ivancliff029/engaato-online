@@ -22,7 +22,7 @@
     },
     "types": ["firebase/firestore"] 
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/context/CartContext.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/context/CartContext.tsx"],
   "exclude": ["node_modules"]
 }
 

@@ -1,4 +1,4 @@
-"use client"; // This makes sure the component is rendered on the client-side
+"use client"; // Ensure the component is rendered on the client-side
 import { db } from '../../lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { Product } from '../../types/types';
@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { notFound } from 'next/navigation';
 import { FaArrowLeft, FaCheck } from 'react-icons/fa'; // Icons
+import { useCart } from '../../context/CartContext'; // Cart context
 
 interface ProductDetailsProps {
   params: { id: string };
@@ -56,8 +57,8 @@ const ProductDetails = async ({ params }: ProductDetailsProps) => {
           <label htmlFor="shoe-size" className="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-200">
             Shoe Size:
           </label>
-          <select id="shoe-size" className="border rounded p-2 mb-4 dark:bg-gray-900 dark:text-gray-200">
-            <option value="39">39</option>
+          <select id="shoe-size" className="border rounded p-2 mb-4 dark:bg-gray-900 dark:text-gray-500">
+            <option value="39" className="dark:bg-gray-900 dark:text-gray-500">39</option>
             <option value="40">40</option>
             <option value="41">41</option>
             <option value="42">42</option>
@@ -103,9 +104,10 @@ const BackButton = () => {
 // Add to Cart Button Component
 const AddToCartButton = ({ product }: { product: Product }) => {
   const [addedToCart, setAddedToCart] = useState(false);
+  const { addToCart } = useCart(); // Using cart context
 
   const handleAddToCart = () => {
-    // Add to cart logic here (e.g., add to state, send to backend, etc.)
+    addToCart(product, 1); // Add product to cart with quantity 1
     setAddedToCart(true);
     alert(`Added ${product.title} to cart!`);
   };
