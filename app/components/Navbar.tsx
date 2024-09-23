@@ -1,39 +1,32 @@
 "use client";
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { FaTimes, FaShoppingCart, FaUserCircle, FaSignOutAlt, FaTachometerAlt } from 'react-icons/fa';
+import { FaUserCircle, FaSignOutAlt } from 'react-icons/fa';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-import { Product } from '../types/types';
 import Checkout from './Checkout';
-import { ShoppingCart, User, LogOut, LayoutDashboard, Menu, X } from 'lucide-react'
-import { Button } from "../components/ui/button"
+import { ShoppingCart, User, LogOut, LayoutDashboard, X } from 'lucide-react';
+import { Button } from "../components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "../components/ui/dropdown-menu"
+} from "../components/ui/dropdown-menu";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "../components/ui/sheet"
+} from "../components/ui/sheet";
 
 const Navbar: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const { getCartItemCount, cart, removeFromCart, getTotalPrice } = useCart();
   const { currentUser, logout } = useAuth();
-
-  const toggleMenu = () => {
-    setIsOpen(!isOpen);
-  };
 
   const toggleCart = () => {
     setIsCartOpen(!isCartOpen);
@@ -48,13 +41,8 @@ const Navbar: React.FC = () => {
     setIsCheckoutOpen(false);
   };
 
-  const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
-  };
-
   return (
-    <>
- <nav className="bg-black text-white p-2 sticky top-0 z-50">
+    <nav className="bg-black text-white p-2 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex-shrink-0">
@@ -73,7 +61,7 @@ const Navbar: React.FC = () => {
         <div className="flex items-center space-x-4">
           <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="relative">
+              <Button variant="ghost" size="icon" className="relative" onClick={toggleCart}>
                 <ShoppingCart className="h-6 w-6" />
                 {getCartItemCount() > 0 && (
                   <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs px-2 py-1 rounded-full">
@@ -94,7 +82,7 @@ const Navbar: React.FC = () => {
                     <div key={item.id} className="flex justify-between items-center p-2 bg-gray-100 rounded">
                       <span>{item.title}</span>
                       <div className="flex items-center space-x-2">
-                        <span>{item.price.toFixed(2)} Ugx</span>
+                        <span>{item.price} Ugx</span>
                         <Button variant="ghost" size="sm" onClick={() => removeFromCart(item.id)}>
                           <X className="h-4 w-4" />
                         </Button>
@@ -112,9 +100,9 @@ const Navbar: React.FC = () => {
             </SheetContent>
           </Sheet>
 
-          {/* Logout (if user is logged in) */}
+          {/* Profile Section */}
           {currentUser ? (
-              <DropdownMenu>
+            <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon">
                   <User className="h-6 w-6" />
@@ -122,42 +110,33 @@ const Navbar: React.FC = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem>
-                  <span>{currentUser ? currentUser.email : 'Guest'}</span>
+                  <span>{currentUser.email}</span>
                 </DropdownMenuItem>
-                {currentUser ? (
-                  <>
-                    <DropdownMenuItem>
-                      <Link href="/dashboard" className="flex items-center">
-                        <LayoutDashboard className="mr-2 h-4 w-4" />
-                        <span>Dashboard</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={logout}>
-                      <LogOut className="mr-2 h-4 w-4" />
-                      <span>Logout</span>
-                    </DropdownMenuItem>
-                  </>
-                ) : (
-                  <DropdownMenuItem>
-                    <Link href="/login">Login</Link>
-                  </DropdownMenuItem>
-                )}
+                <DropdownMenuItem>
+                  <Link href="/dashboard" className="flex items-center">
+                    <LayoutDashboard className="mr-2 h-4 w-4" />
+                    <span>Dashboard</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={logout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Logout</span>
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            ) : (
-              <Link href="/login" className="text-white">
-                <Button variant="ghost" size="icon">
-                  <User className="h-6 w-6" />
-                </Button>
-              </Link>
-            )}
+          ) : (
+            <Link href="/login" className="text-white">
+              <Button variant="ghost" size="icon">
+                <User className="h-6 w-6" />
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
 
       {/* Checkout Modal */}
       {isCheckoutOpen && <Checkout total={getTotalPrice()} onClose={closeCheckout} />}
     </nav>
-    </>
   );
 };
 
