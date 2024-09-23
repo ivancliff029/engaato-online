@@ -211,7 +211,6 @@ const Manage: React.FC = () => {
 
       {/* Edit Product Dialog */}
       <Dialog open={openEdit} onOpenChange={setOpenEdit}>
-        <DialogTitle>Edit Product</DialogTitle>
         <DialogContent>
           <div className="space-y-4">
             <input
@@ -284,7 +283,6 @@ const Manage: React.FC = () => {
 
       {/* New Product Dialog */}
       <Dialog open={openNew} onOpenChange={setOpenNew}>
-        <DialogTitle>Add New Product</DialogTitle>
         <DialogContent>
           <div className="space-y-4">
             <input
