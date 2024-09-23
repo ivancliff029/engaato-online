@@ -54,11 +54,11 @@ const Navbar: React.FC = () => {
 
   return (
     <>
- <nav className="bg-black text-white p-4 sticky top-0 z-50">
+ <nav className="bg-black text-white p-2 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex-shrink-0">
-          <span className="sr-only">Your Logo</span>
+          <span className="sr-only">Engaato Online</span>
           <img src="/img/sneakers.png" alt="logo" height={40} width={40} />
         </Link>
 

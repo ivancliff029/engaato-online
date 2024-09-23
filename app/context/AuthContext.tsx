@@ -4,10 +4,11 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 import { app } from '../lib/firebase'; 
 import { useRouter } from 'next/navigation'; 
-import { getFirestore, doc, setDoc } from 'firebase/firestore';
+import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 
 interface AuthContextType {
   currentUser: User | null;
+  userRole: string | undefined; // Added userRole to the context type
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   updateUserProfile: (data: { username: string; firstName: string; lastName: string; dob: string; phone: string; }) => Promise<void>;
@@ -26,18 +27,13 @@ export const useAuth = () => {
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [userRole, setUserRole] = useState<string | undefined>(undefined); // State for user role
   const [error, setError] = useState<string | null>(null);
   const auth = getAuth(app);
   const router = useRouter();
-  const db = getFirestore(app); // Initialize Firestore
+  const db = getFirestore(app); 
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setCurrentUser(user);
-    });
-    return unsubscribe;
-  }, [auth]);
-
+  // Function to handle login
   const login = async (email: string, password: string) => {
     try {
       setError(null);
@@ -49,6 +45,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Function to handle logout
   const logout = async () => {
     try {
       setError(null);
@@ -60,6 +57,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Function to update user profile
   const updateUserProfile = async (data: { username: string; firstName: string; lastName: string; dob: string; phone: string; }) => {
     if (currentUser) {
       try {
@@ -70,11 +68,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Effect to track authentication state and fetch user role
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      setCurrentUser(user);
+      if (user) {
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          setUserRole(data.role); // Assuming 'role' is stored in Firestore
+        }
+      } else {
+        setUserRole(undefined); // Reset role on logout
+      }
+    });
+    return unsubscribe;
+  }, [auth]);
+
+  // Define the context value to be provided
   const value = {
     currentUser,
-    login,
-    logout,
-    updateUserProfile,
+    userRole, // Include userRole in context
+    login,    // Assign the function to the value
+    logout,   // Assign the function to the value
+    updateUserProfile, // Assign the function to the value
     error,
   };
 

@@ -81,8 +81,8 @@ const Footer: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="px-4 py-6 bg-gray-100 dark:bg-gray-700 md:flex md:items-center md:justify-between">
-                    <span className="text-sm text-gray-500 dark:text-gray-300 sm:text-center">
+                <div className="px-4 py-6 bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                    <span className="text-sm text-gray-500 dark:text-gray-300 text-center">
                         © 2024 <a href="https://engaato-online.vercel.app/">Engaato Online</a>. All Rights Reserved.
                     </span>
                 </div>

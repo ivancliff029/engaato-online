@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getAuth, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { getFirestore, doc, setDoc } from 'firebase/firestore';
+import { app } from '../lib/firebase'; // Ensure Firebase is initialized correctly
 
 interface SignupProps {}
 
@@ -11,7 +13,8 @@ const Signup: React.FC<SignupProps> = () => {
   const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const auth = getAuth();
+  const auth = getAuth(app); // Make sure the Firebase app is initialized
+  const db = getFirestore(app); // Initialize Firestore
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,9 +26,19 @@ const Signup: React.FC<SignupProps> = () => {
     }
 
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      // Store user data in Firestore with a default role of "user"
+      await setDoc(doc(db, 'users', user.uid), {
+        email: user.email,
+        role: 'user',
+        createdAt: new Date(),
+      });
+
       router.push('/dashboard');
     } catch (err) {
+      console.error("Error during signup: ", err);
       setError('Signup failed. Please try again.');
     }
   };
@@ -33,9 +46,19 @@ const Signup: React.FC<SignupProps> = () => {
   const handleGoogleSignup = async () => {
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      // Store user data in Firestore with a default role of "user"
+      await setDoc(doc(db, 'users', user.uid), {
+        email: user.email,
+        role: 'user',
+        createdAt: new Date(),
+      });
+
       router.push('/dashboard');
     } catch (error) {
+      console.error("Google signup error: ", error);
       setError('Google sign-up failed');
     }
   };
