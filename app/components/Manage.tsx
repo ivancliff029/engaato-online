@@ -1,23 +1,29 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { Button } from "../components/ui/button"; 
-import { db } from "../lib/firebase"; 
-import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
+import { db, storage } from "../lib/firebase"; 
+import { collection, getDocs, deleteDoc, doc, updateDoc } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { Dialog, DialogContent, DialogTitle } from "../components/ui/dialog"; // Ensure these components are correctly exported
 
 interface Product {
   id: string;
-  name: string;
+  title: string; // Use title instead of name
   price: number;
   description: string;
-  imageUrl: string; 
+  imageUrl: string;
 }
 
 const Manage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [newImage, setNewImage] = useState<File | null>(null);
+  const [open, setOpen] = useState(false); // Dialog open state
 
+  // Fetch products from Firestore
   useEffect(() => {
     const fetchProducts = async () => {
-      const productsCollection = collection(db, "products"); // Replace with your collection name
+      const productsCollection = collection(db, "products");
       const productSnapshot = await getDocs(productsCollection);
       const productList = productSnapshot.docs.map((doc) => ({
         id: doc.id,
@@ -29,13 +35,83 @@ const Manage: React.FC = () => {
     fetchProducts();
   }, []);
 
+  // Handle deletion of products
   const handleDelete = async (id: string) => {
     try {
-      await deleteDoc(doc(db, "products", id)); // Replace with your collection name
+      await deleteDoc(doc(db, "products", id));
       setProducts((prevProducts) => prevProducts.filter((product) => product.id !== id));
     } catch (error) {
       console.error("Error deleting product:", error);
     }
+  };
+
+  // Handle edit button click
+  const handleEdit = (product: Product) => {
+    setEditingProduct(product);
+    setOpen(true); // Open the dialog for editing
+  };
+
+  // Handle input field changes
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    if (editingProduct) {
+      const { name, value } = e.target;
+      setEditingProduct((prevProduct) => ({
+        ...prevProduct!,
+        [name]: value,
+      }));
+    }
+  };
+
+  // Handle image file selection
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setNewImage(e.target.files[0]);
+    }
+  };
+
+  // Handle saving product updates
+  const handleSave = async () => {
+    if (!editingProduct) return;
+
+    try {
+      let updatedImageUrl = editingProduct.imageUrl;
+
+      // Upload new image if one is selected
+      if (newImage) {
+        const imageRef = ref(storage, `products/${editingProduct.id}`);
+        await uploadBytes(imageRef, newImage);
+        updatedImageUrl = await getDownloadURL(imageRef);
+      }
+
+      // Update product details in Firestore
+      const productDocRef = doc(db, "products", editingProduct.id);
+      await updateDoc(productDocRef, {
+        title: editingProduct.title,
+        price: editingProduct.price,
+        description: editingProduct.description,
+        imageUrl: updatedImageUrl,
+      });
+
+      // Update product list in the UI
+      setProducts((prevProducts) =>
+        prevProducts.map((product) =>
+          product.id === editingProduct.id ? { ...editingProduct, imageUrl: updatedImageUrl } : product
+        )
+      );
+
+      setOpen(false); // Close dialog
+      setNewImage(null); // Clear selected image
+      setEditingProduct(null); // Reset editing state
+    } catch (error) {
+      console.error("Error updating product:", error);
+    }
+  };
+
+  // Handle cancel button click
+  const handleCancel = () => {
+    setOpen(false); // Close dialog
+    setNewImage(null); // Clear selected image
+    setEditingProduct(null); // Reset editing state
   };
 
   return (
@@ -51,18 +127,18 @@ const Manage: React.FC = () => {
               {product.imageUrl && (
                 <img
                   src={product.imageUrl}
-                  alt={product.name}
+                  alt={product.title}
                   className="w-16 h-16 object-cover mr-4 rounded"
                 />
               )}
               <div>
-                <h3 className="text-xl">{product.name}</h3>
-                <p className="text-gray-600">Price: ${product.price}</p>
+                <h3 className="text-xl">{product.title}</h3> {/* Display title */}
+                <p className="text-gray-600">Price: {product.price} Ugx</p>
                 <p className="text-sm text-gray-500">{product.description}</p>
               </div>
             </div>
             <div className="flex space-x-2">
-              <Button onClick={() => alert(`Edit product ${product.id}`)} className="bg-blue-500 text-white">
+              <Button onClick={() => handleEdit(product)} className="bg-blue-500 text-white">
                 Edit
               </Button>
               <Button onClick={() => handleDelete(product.id)} className="bg-red-500 text-white">
@@ -72,6 +148,60 @@ const Manage: React.FC = () => {
           </div>
         ))}
       </div>
+
+      {/* Dialog for editing product */}
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <div className="space-y-4">
+            <input
+              type="text"
+              name="title"
+              value={editingProduct?.title || ''}
+              onChange={handleInputChange}
+              placeholder="Product Title"
+              className="w-full p-2 border border-gray-300 rounded-md"
+            />
+            <input
+              type="number"
+              name="price"
+              value={editingProduct?.price || ''}
+              onChange={handleInputChange}
+              placeholder="Product Price"
+              className="w-full p-2 border border-gray-300 rounded-md"
+            />
+            <textarea
+              name="description"
+              value={editingProduct?.description || ''}
+              onChange={handleInputChange}
+              placeholder="Product Description"
+              className="w-full p-2 border border-gray-300 rounded-md"
+            />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="w-full p-2 border border-gray-300 rounded-md"
+            />
+            {newImage ? (
+              <p>New image selected: {newImage.name}</p>
+            ) : (
+              <img
+                src={editingProduct?.imageUrl}
+                alt={editingProduct?.title}
+                className="w-16 h-16 object-cover rounded"
+              />
+            )}
+            <div className="flex space-x-2">
+              <Button onClick={handleSave} className="bg-green-500 text-white">
+                Save
+              </Button>
+              <Button onClick={handleCancel} className="bg-gray-500 text-white">
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
