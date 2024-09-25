@@ -9,6 +9,7 @@ import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 interface AuthContextType {
   currentUser: User | null;
   userRole: string | undefined; // Added userRole to the context type
+  loading: boolean; // Added loading state
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   updateUserProfile: (data: { username: string; firstName: string; lastName: string; dob: string; phone: string; }) => Promise<void>;
@@ -29,6 +30,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [userRole, setUserRole] = useState<string | undefined>(undefined); // State for user role
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true); // Initialize loading state
   const auth = getAuth(app);
   const router = useRouter();
   const db = getFirestore(app); 
@@ -81,6 +83,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         setUserRole(undefined); // Reset role on logout
       }
+      setLoading(false); // Set loading to false after checking auth
     });
     return unsubscribe;
   }, [auth]);
@@ -89,8 +92,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const value = {
     currentUser,
     userRole, // Include userRole in context
-    login,    // Assign the function to the value
-    logout,   // Assign the function to the value
+    loading,   // Include loading in context
+    login,     // Assign the function to the value
+    logout,    // Assign the function to the value
     updateUserProfile, // Assign the function to the value
     error,
   };

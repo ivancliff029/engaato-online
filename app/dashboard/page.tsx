@@ -1,22 +1,27 @@
-"use client"
+"use client";
 import { useEffect } from 'react';
-import { useAuth } from '../context/AuthContext'; 
+import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'next/navigation';
-import Dashboard from '../components/Dashboard'; 
+import Dashboard from '../components/Dashboard';
 
 const DashboardPage = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!currentUser) {
+    if (!loading && !currentUser) {
       router.push('/login'); // Redirect to login if not authenticated
     }
-  }, [currentUser, router]);
+  }, [currentUser, loading, router]);
 
-  // Show a loading state or nothing until the user is verified
+  // Show a loading state while checking auth
+  if (loading) {
+    return <p>Loading...</p>;
+  }
+
+  // If user is not logged in and loading is false, they will be redirected
   if (!currentUser) {
-    return <p>Loading...</p>; // You can customize this as needed
+    return null; // Prevent rendering the Dashboard
   }
 
   return <Dashboard />;
