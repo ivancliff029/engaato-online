@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { useAuth } from "../context/AuthContext"; 
-import { db } from "../lib/firebase"; 
-import { doc, getDoc, setDoc } from "firebase/firestore"; 
+import { useAuth } from "../context/AuthContext";
+import { db } from "../lib/firebase";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import Modal from "../components/Modal";
 
 const ProfileContent: React.FC<{ onUpdateLastName: (lastName: string) => void }> = ({ onUpdateLastName }) => {
@@ -12,6 +12,7 @@ const ProfileContent: React.FC<{ onUpdateLastName: (lastName: string) => void }>
     lastName: '',
     dob: '',
     phone: '',
+    role: '', // This field is not visible in the form, but we need to preserve it
   });
   const [profileIncomplete, setProfileIncomplete] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -24,16 +25,17 @@ const ProfileContent: React.FC<{ onUpdateLastName: (lastName: string) => void }>
       if (currentUser) {
         const userDocRef = doc(db, "users", currentUser.uid);
         const userDocSnap = await getDoc(userDocRef);
-        
+
         if (userDocSnap.exists()) {
           const userData = userDocSnap.data();
-          
+
           setFormData({
-            username: currentUser.displayName || '',
+            username: userData.username || currentUser.displayName || '',
             firstName: userData.firstName || '',
             lastName: userData.lastName || '',
             dob: userData.dob || '',
             phone: userData.phone || '',
+            role: userData.role || '', // Preserve the role field
           });
 
           const isProfileComplete = userData.firstName && userData.lastName && userData.dob && userData.phone;
@@ -65,14 +67,33 @@ const ProfileContent: React.FC<{ onUpdateLastName: (lastName: string) => void }>
     }
 
     try {
-      // Save user data to Firestore
+      // Save user data to Firestore, preserving the role field
       const userDocRef = doc(db, "users", currentUser.uid);
-      await setDoc(userDocRef, {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        dob: formData.dob,
-        phone: formData.phone,
-      });
+      const userDocSnap = await getDoc(userDocRef); // Fetch the current document
+
+      if (userDocSnap.exists()) {
+        const { role } = userDocSnap.data(); // Extract the existing role
+
+        // Update the Firestore document, rewriting the username if it was updated
+        await setDoc(userDocRef, {
+          username: formData.username, // Rewrite or set the username
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          dob: formData.dob,
+          phone: formData.phone,
+          role: role, // Preserve the existing role
+        });
+      } else {
+        // If no document exists, create a new one
+        await setDoc(userDocRef, {
+          username: formData.username,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          dob: formData.dob,
+          phone: formData.phone,
+          role: formData.role || 'user', // Assign a default role if it doesn't exist
+        });
+      }
 
       setSuccessMessage("Profile updated successfully!");
       setErrorMessage("");

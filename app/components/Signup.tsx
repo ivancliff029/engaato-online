@@ -1,9 +1,15 @@
 "use client";
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getAuth, createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from 'firebase/auth';
 import { getFirestore, doc, setDoc } from 'firebase/firestore';
 import { app } from '../lib/firebase'; // Ensure Firebase is initialized correctly
+import { FirebaseError } from 'firebase/app'; // Import FirebaseError to type the error
 
 interface SignupProps {}
 
@@ -11,9 +17,11 @@ const Signup: React.FC<SignupProps> = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
+  const [username, setUsername] = useState<string>(''); // Added username state
+  const [phone, setPhone] = useState<string>(''); // Added phone number state
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const auth = getAuth(app); // Make sure the Firebase app is initialized
+  const auth = getAuth(app); // Initialize Firebase Auth
   const db = getFirestore(app); // Initialize Firestore
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -29,17 +37,30 @@ const Signup: React.FC<SignupProps> = () => {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // Store user data in Firestore with a default role of "user"
+      // Store user data in Firestore with username and phone number
       await setDoc(doc(db, 'users', user.uid), {
         email: user.email,
+        username: username, // Store username
+        phone: phone, // Store phone number
         role: 'user',
         createdAt: new Date(),
       });
 
       router.push('/dashboard');
     } catch (err) {
-      console.error("Error during signup: ", err);
-      setError('Signup failed. Please try again.');
+      // Type assertion to ensure the error is a FirebaseError
+      if (err instanceof FirebaseError) {
+        if (err.code === 'auth/email-already-in-use') {
+          setError('Email already in use. Please log in instead.');
+        } else {
+          console.error("Error during signup: ", err);
+          setError('Signup failed. Please try again.');
+        }
+      } else {
+        // Handle any non-Firebase errors (optional)
+        console.error("Unexpected error: ", err);
+        setError('Unexpected error occurred.');
+      }
     }
   };
 
@@ -49,9 +70,11 @@ const Signup: React.FC<SignupProps> = () => {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      // Store user data in Firestore with a default role of "user"
+      // Store user data in Firestore with username and phone number
       await setDoc(doc(db, 'users', user.uid), {
         email: user.email,
+        username: username, // Store username
+        phone: phone, // Store phone number
         role: 'user',
         createdAt: new Date(),
       });
@@ -66,8 +89,23 @@ const Signup: React.FC<SignupProps> = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
       <div className="bg-white dark:bg-gray-800 shadow-md rounded px-8 pt-6 pb-8 mb-4 w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white text-center">Sign Up</h2>
+        <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white text-center">
+          Sign Up
+        </h2>
         <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" htmlFor="username">
+              Username
+            </label>
+            <input
+              id="username"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-300 dark:bg-gray-700 leading-tight focus:outline-none focus:ring"
+              required
+            />
+          </div>
           <div className="mb-4">
             <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" htmlFor="email">
               Email
@@ -77,6 +115,19 @@ const Signup: React.FC<SignupProps> = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-300 dark:bg-gray-700 leading-tight focus:outline-none focus:ring"
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2" htmlFor="phone">
+              Phone Number
+            </label>
+            <input
+              id="phone"
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 dark:text-gray-300 dark:bg-gray-700 leading-tight focus:outline-none focus:ring"
               required
             />
