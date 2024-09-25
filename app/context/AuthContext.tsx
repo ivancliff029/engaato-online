@@ -1,19 +1,34 @@
-// AuthContext.tsx
 "use client";
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
-import { app } from '../lib/firebase'; 
-import { useRouter } from 'next/navigation'; 
+import {
+  User,
+  getAuth,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  updateProfile, // This updates the Firebase Auth profile
+} from 'firebase/auth';
+import { app } from '../lib/firebase';
+import { useRouter } from 'next/navigation';
 import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 interface AuthContextType {
   currentUser: User | null;
-  userRole: string | undefined; // Added userRole to the context type
-  loading: boolean; // Added loading state
+  userRole: string | undefined;
+  loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  updateUserProfile: (data: { username: string; firstName: string; lastName: string; dob: string; phone: string; }) => Promise<void>;
-  error: string | null; 
+  updateUserProfile: (data: {
+    username: string;
+    firstName: string;
+    lastName: string;
+    dob: string;
+    phone: string;
+  }) => Promise<void>;
+  updateUserImage: (file: File) => Promise<void>;
+  getUserImage: () => Promise<string | null>;
+  error: string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -26,16 +41,18 @@ export const useAuth = () => {
   return context;
 };
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [userRole, setUserRole] = useState<string | undefined>(undefined); // State for user role
+  const [userRole, setUserRole] = useState<string | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true); // Initialize loading state
+  const [loading, setLoading] = useState<boolean>(true);
   const auth = getAuth(app);
   const router = useRouter();
-  const db = getFirestore(app); 
+  const db = getFirestore(app);
+  const storage = getStorage(app);
 
-  // Function to handle login
   const login = async (email: string, password: string) => {
     try {
       setError(null);
@@ -47,7 +64,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Function to handle logout
   const logout = async () => {
     try {
       setError(null);
@@ -59,43 +75,96 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Function to update user profile
-  const updateUserProfile = async (data: { username: string; firstName: string; lastName: string; dob: string; phone: string; }) => {
+  const updateUserProfile = async (data: {
+    username: string;
+    firstName: string;
+    lastName: string;
+    dob: string;
+    phone: string;
+  }) => {
     if (currentUser) {
       try {
         await setDoc(doc(db, 'users', currentUser.uid), data, { merge: true });
       } catch (error) {
-        console.error("Error updating user profile: ", error);
+        console.error('Error updating user profile: ', error);
       }
     }
   };
 
-  // Effect to track authentication state and fetch user role
+  const updateUserImage = async (file: File) => {
+    if (currentUser) {
+      try {
+        const storageRef = ref(storage, `userImages/${currentUser.uid}`);
+        await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(storageRef);
+
+        // Update Firestore
+        await setDoc(
+          doc(db, 'users', currentUser.uid),
+          { photoURL: downloadURL },
+          { merge: true }
+        );
+
+        // Update Firebase Auth User profile
+        await updateProfile(currentUser, { photoURL: downloadURL });
+
+        // Update the currentUser state to reflect the new image
+        setCurrentUser((prev) =>
+          prev ? { ...prev, photoURL: downloadURL } : null
+        );
+      } catch (error) {
+        console.error('Error updating user image: ', error);
+        throw error;
+      }
+    }
+  };
+
+  const getUserImage = async (): Promise<string | null> => {
+    if (currentUser) {
+      try {
+        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+        if (userDoc.exists()) {
+          return userDoc.data().photoURL || null;
+        }
+      } catch (error) {
+        console.error('Error getting user image: ', error);
+      }
+    }
+    return null;
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setCurrentUser(user);
       if (user) {
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists()) {
           const data = userDoc.data();
-          setUserRole(data.role); // Assuming 'role' is stored in Firestore
+          setUserRole(data.role);
+          setCurrentUser({
+            ...user,
+            photoURL: data.photoURL || user.photoURL,
+          });
+        } else {
+          setCurrentUser(user);
         }
       } else {
-        setUserRole(undefined); // Reset role on logout
+        setCurrentUser(null);
+        setUserRole(undefined);
       }
-      setLoading(false); // Set loading to false after checking auth
+      setLoading(false);
     });
     return unsubscribe;
   }, [auth]);
 
-  // Define the context value to be provided
   const value = {
     currentUser,
-    userRole, // Include userRole in context
-    loading,   // Include loading in context
-    login,     // Assign the function to the value
-    logout,    // Assign the function to the value
-    updateUserProfile, // Assign the function to the value
+    userRole,
+    loading,
+    login,
+    logout,
+    updateUserProfile,
+    updateUserImage,
+    getUserImage,
     error,
   };
 

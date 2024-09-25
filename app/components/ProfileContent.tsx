@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
-import { db } from "../lib/firebase";
+import { db, storage } from "../lib/firebase"; // Make sure storage is imported from your Firebase config
 import { doc, getDoc, setDoc } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage"; // Import necessary functions from Firebase Storage
 import Modal from "../components/Modal";
 
 const ProfileContent: React.FC<{ onUpdateLastName: (lastName: string) => void }> = ({ onUpdateLastName }) => {
@@ -12,12 +13,15 @@ const ProfileContent: React.FC<{ onUpdateLastName: (lastName: string) => void }>
     lastName: '',
     dob: '',
     phone: '',
-    role: '', // This field is not visible in the form, but we need to preserve it
+    role: '',
+    profileImage: '' // New field to hold the profile image URL
   });
   const [profileIncomplete, setProfileIncomplete] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [imageFile, setImageFile] = useState<File | null>(null); // State to hold the selected image file
+  const [imageUrl, setImageUrl] = useState<string>(''); // State to hold the uploaded image URL
 
   // Fetch additional user data from Firestore
   useEffect(() => {
@@ -36,7 +40,9 @@ const ProfileContent: React.FC<{ onUpdateLastName: (lastName: string) => void }>
             dob: userData.dob || '',
             phone: userData.phone || '',
             role: userData.role || '', // Preserve the role field
+            profileImage: userData.profileImage || '' // Load existing profile image URL
           });
+          setImageUrl(userData.profileImage || ''); // Set the image URL state
 
           const isProfileComplete = userData.firstName && userData.lastName && userData.dob && userData.phone;
           if (!isProfileComplete) {
@@ -44,7 +50,6 @@ const ProfileContent: React.FC<{ onUpdateLastName: (lastName: string) => void }>
             setShowModal(true);
           }
         } else {
-          // User document does not exist, meaning the profile is incomplete
           setProfileIncomplete(true);
           setShowModal(true);
         }
@@ -59,6 +64,18 @@ const ProfileContent: React.FC<{ onUpdateLastName: (lastName: string) => void }>
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImageUrl(reader.result as string); // Display the selected image before upload
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentUser) {
@@ -67,22 +84,30 @@ const ProfileContent: React.FC<{ onUpdateLastName: (lastName: string) => void }>
     }
 
     try {
-      // Save user data to Firestore, preserving the role field
       const userDocRef = doc(db, "users", currentUser.uid);
-      const userDocSnap = await getDoc(userDocRef); // Fetch the current document
+      const userDocSnap = await getDoc(userDocRef);
 
       if (userDocSnap.exists()) {
-        const { role } = userDocSnap.data(); // Extract the existing role
+        const { role } = userDocSnap.data();
 
-        // Update the Firestore document, rewriting the username if it was updated
+        // Upload image if it exists
+        let uploadedImageUrl = '';
+        if (imageFile) {
+          const storageRef = ref(storage, `profileImages/${currentUser.uid}`);
+          await uploadBytes(storageRef, imageFile);
+          uploadedImageUrl = await getDownloadURL(storageRef);
+        }
+
         await setDoc(userDocRef, {
-          username: formData.username, // Rewrite or set the username
+          username: formData.username,
           firstName: formData.firstName,
           lastName: formData.lastName,
           dob: formData.dob,
           phone: formData.phone,
-          role: role, // Preserve the existing role
+          role: role,
+          profileImage: uploadedImageUrl || formData.profileImage // Preserve existing image if no new image
         });
+
       } else {
         // If no document exists, create a new one
         await setDoc(userDocRef, {
@@ -91,7 +116,8 @@ const ProfileContent: React.FC<{ onUpdateLastName: (lastName: string) => void }>
           lastName: formData.lastName,
           dob: formData.dob,
           phone: formData.phone,
-          role: formData.role || 'user', // Assign a default role if it doesn't exist
+          role: formData.role || 'user',
+          profileImage: '' // Initialize profile image as empty
         });
       }
 
@@ -107,7 +133,6 @@ const ProfileContent: React.FC<{ onUpdateLastName: (lastName: string) => void }>
   };
 
   if (!currentUser) {
-    // Show a loading state or prompt the user to log in
     return <div className="text-center">Please log in to update your profile.</div>;
   }
 
@@ -178,6 +203,20 @@ const ProfileContent: React.FC<{ onUpdateLastName: (lastName: string) => void }>
           className="p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500"
           required
         />
+        
+        {/* Image Upload Input */}
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleImageChange}
+          className="p-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500"
+        />
+        
+        {/* Display selected image */}
+        {imageUrl && (
+          <img src={imageUrl} alt="Profile Preview" className="w-24 h-24 rounded-full mt-2" />
+        )}
+
         <button
           type="submit"
           className="w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200"

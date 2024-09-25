@@ -1,11 +1,11 @@
 "use client";
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { FaUserCircle, FaSignOutAlt } from 'react-icons/fa';
+import Image from 'next/image';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import Checkout from './Checkout';
-import { ShoppingCart, User, LogOut, LayoutDashboard, X } from 'lucide-react';
+import { ShoppingCart, User, LogOut, LayoutDashboard, X, Menu } from 'lucide-react';
 import { Button } from "../components/ui/button";
 import {
   DropdownMenu,
@@ -24,6 +24,7 @@ import {
 const Navbar: React.FC = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const { getCartItemCount, cart, removeFromCart, getTotalPrice } = useCart();
   const { currentUser, logout } = useAuth();
@@ -41,16 +42,36 @@ const Navbar: React.FC = () => {
     setIsCheckoutOpen(false);
   };
 
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const getUserPhotoUrl = () => {
+    // Return the user's photoURL or fallback to a default image
+    return currentUser?.photoURL || '/img/default-user-icon.svg';
+  };
+
   return (
     <nav className="bg-black text-white p-2 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        {/* Logo */}
-        <Link href="/" className="flex-shrink-0">
+        {/* Mobile Menu Button and Logo */}
+        <div className="flex items-center md:hidden">
+          <Button variant="ghost" size="icon" onClick={toggleMobileMenu} className="mr-2">
+            <Menu className="h-6 w-6" />
+          </Button>
+          <Link href="/" className="flex-shrink-0">
+            <span className="sr-only">Engaato Online</span>
+            <Image src="/img/sneakers.png" alt="logo" height={40} width={40} />
+          </Link>
+        </div>
+
+        {/* Desktop Logo */}
+        <Link href="/" className="hidden md:block flex-shrink-0">
           <span className="sr-only">Engaato Online</span>
-          <img src="/img/sneakers.png" alt="logo" height={40} width={40} />
+          <Image src="/img/sneakers.png" alt="logo" height={40} width={40} />
         </Link>
 
-        {/* Menu Items */}
+        {/* Desktop Menu Items */}
         <div className="hidden md:flex space-x-6">
           <Link href="/" className="hover:text-gray-300 transition-colors">Home</Link>
           <Link href="/product" className="hover:text-gray-300 transition-colors">Shop</Link>
@@ -105,7 +126,13 @@ const Navbar: React.FC = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon">
-                  <User className="h-6 w-6" />
+                  <Image
+                    src={getUserPhotoUrl()} // Display user's profile photo or default
+                    alt="Profile"
+                    width={24}
+                    height={24}
+                    className="rounded-full"
+                  />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -133,6 +160,20 @@ const Navbar: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+        <SheetContent side="left">
+          <SheetHeader>
+            <SheetTitle>Menu</SheetTitle>
+          </SheetHeader>
+          <div className="flex flex-col space-y-4 mt-4">
+            <Link href="/" className="hover:text-gray-300 transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Home</Link>
+            <Link href="/product" className="hover:text-gray-300 transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Shop</Link>
+            <Link href="/contact" className="hover:text-gray-300 transition-colors" onClick={() => setIsMobileMenuOpen(false)}>Contact</Link>
+          </div>
+        </SheetContent>
+      </Sheet>
 
       {/* Checkout Modal */}
       {isCheckoutOpen && <Checkout total={getTotalPrice()} onClose={closeCheckout} />}
