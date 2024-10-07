@@ -23,18 +23,18 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} flex flex-col min-h-screen bg-white dark:bg-gray-900`}>
         <AuthProvider>
-
-        <CartProvider>
-          {/* Navbar at the top of every page */}
-          <Navbar />
-        
-          {/* Main content of the page */}
-          <main className="flex-grow bg-white dark:bg-gray-900">{children}</main>
-        
-          {/* Footer at the bottom of every page */}
-          <Footer />
-        </CartProvider>
-
+          <CartProvider>
+            {/* Navbar at the top of every page */}
+            <Navbar />
+            
+            {/* Main content of the page */}
+            <main className="flex-grow flex-shrink-0 bg-white dark:bg-gray-900">
+              {children}
+            </main>
+            
+            {/* Footer at the bottom of every page */}
+            <Footer />
+          </CartProvider>
         </AuthProvider>
       </body>
     </html>
