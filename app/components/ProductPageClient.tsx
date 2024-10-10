@@ -1,4 +1,4 @@
-"use client";
+"use client"
 import React, { useState } from 'react';
 import { Product, FilterOptions } from '../types/types';
 import ProductsList from './ProductList';
@@ -15,6 +15,12 @@ import {
 } from "./ui/pagination";
 import { useSearchParams, useRouter } from 'next/navigation';
 
+// Define the props interface for ProductPageClient
+interface ProductPageClientProps {
+  initialProducts: Product[];
+  categories: string[];
+}
+
 const ITEMS_PER_PAGE = 9;
 
 // Helper function to parse price
@@ -23,7 +29,7 @@ const parsePrice = (price: string | number): number => {
   return parseFloat(price.replace(/[^\d.-]/g, '')) || 0;
 };
 
-export default function ProductPageClient({ initialProducts, categories }: { initialProducts: Product[], categories: string[] }) {
+const ProductPageClient: React.FC<ProductPageClientProps> = ({ initialProducts, categories }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const page = Number(searchParams.get('page')) || 1;
@@ -174,4 +180,6 @@ export default function ProductPageClient({ initialProducts, categories }: { ini
       </div>
     </div>
   );
-}
+};
+
+export default ProductPageClient;

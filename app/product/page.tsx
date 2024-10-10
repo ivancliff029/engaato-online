@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { getProductsAndCategories } from '../lib/productUtils';
 import ProductPageClient from '../components/ProductPageClient';
 
@@ -10,5 +11,9 @@ export async function generateMetadata() {
 
 export default async function ProductPage() {
   const { products, categories } = await getProductsAndCategories();
-  return <ProductPageClient initialProducts={products} categories={categories} />;
+  return (
+    <Suspense fallback={<div>Loading products...</div>}>
+      <ProductPageClient initialProducts={products} categories={categories} />;
+    </Suspense>
+  )
 }
