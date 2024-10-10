@@ -7,6 +7,13 @@ export interface Product {
     price: number;
     colors: string[];
     sizes: string[];
-    categoy: string;
+    category: string;
   }
 
+  export type FilterOptions = {
+    category: string;
+    minPrice: number;
+    maxPrice: number;
+    sortBy: 'price-asc' | 'price-desc' | 'name-asc' | 'name-desc';
+  };
+  
