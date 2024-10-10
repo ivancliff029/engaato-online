@@ -1,9 +1,11 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../lib/firebase';
 import Checkout from './Checkout';
 import { ShoppingCart, User, LogOut, LayoutDashboard, X, Menu } from 'lucide-react';
 import { Button } from "../components/ui/button";
@@ -25,9 +27,39 @@ const Navbar: React.FC = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
 
   const { getCartItemCount, cart, removeFromCart, getTotalPrice } = useCart();
   const { currentUser, logout } = useAuth();
+
+  // Fetch user's profile image from Firestore
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (currentUser) {
+        try {
+          const userDocRef = doc(db, "users", currentUser.uid);
+          const userDocSnap = await getDoc(userDocRef);
+          
+          if (userDocSnap.exists()) {
+            const userData = userDocSnap.data();
+            // Only set the profile image if it exists and is not empty
+            if (userData.profileImage && userData.profileImage.trim() !== '') {
+              setProfileImage(userData.profileImage);
+            } else {
+              setProfileImage(null);
+            }
+          } else {
+            setProfileImage(null);
+          }
+        } catch (error) {
+          console.error("Error fetching user profile:", error);
+          setProfileImage(null);
+        }
+      }
+    };
+
+    fetchUserProfile();
+  }, [currentUser]);
 
   const toggleCart = () => {
     setIsCartOpen(!isCartOpen);
@@ -46,9 +78,28 @@ const Navbar: React.FC = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  const getUserPhotoUrl = () => {
-    // Return the user's photoURL or fallback to a default image
-    return currentUser?.photoURL || '/img/default-user-icon.svg';
+  // Profile image handling
+  const getProfileImageElement = () => {
+    if (!currentUser) {
+      return (
+        <User className="h-6 w-6" />
+      );
+    }
+
+    return (
+      <Image
+        src={profileImage || '/img/default-user-icon.svg'}
+        alt="Profile"
+        width={24}
+        height={24}
+        className="rounded-full object-cover"
+        onError={(e) => {
+          // Fallback to default icon if image fails to load
+          const img = e.target as HTMLImageElement;
+          img.src = '/img/default-user-icon.svg';
+        }}
+      />
+    );
   };
 
   return (
@@ -126,13 +177,7 @@ const Navbar: React.FC = () => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon">
-                  <Image
-                    src={getUserPhotoUrl()} // Display user's profile photo or default
-                    alt="Profile"
-                    width={24}
-                    height={24}
-                    className="rounded-full"
-                  />
+                  {getProfileImageElement()}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
