@@ -1,120 +1,87 @@
-// components/ProductFilters.tsx
 import React from 'react';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import {
-  Card,
-  CardContent,
-} from "../ui/card";
+import { FilterOptions } from '../../types/types';
 
-// Define the FilterOptions type
-export type FilterOptions = {
-  category: string;
-  minPrice: number;
-  maxPrice: number;
-  sortBy: 'price-asc' | 'price-desc' | 'name-asc' | 'name-desc';
-};
-
-interface ProductFiltersProps {
-  categories: string[];
-  filters: FilterOptions;
-  onFilterChange: (filters: FilterOptions) => void;
-}
-
-const ProductFilters: React.FC<ProductFiltersProps> = ({
+export default function ProductFilters({
   categories,
   filters,
   onFilterChange,
-}) => {
+}: {
+  categories: string[];
+  filters: FilterOptions;
+  onFilterChange: (newFilters: FilterOptions) => void;
+}) {
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>) => {
+    const { name, value } = e.target;
+    onFilterChange({ ...filters, [name]: name === 'minPrice' || name === 'maxPrice' ? Number(value) : value });
+  };
+
   return (
-    <Card className="mb-6">
-      <CardContent className="pt-6">
-        <div className="space-y-4">
-          <div className="flex flex-col space-y-1.5">
-            <Label htmlFor="category">Category</Label>
-            <Select
-              value={filters.category}
-              onValueChange={(value) =>
-                onFilterChange({ ...filters, category: value })
-              }
-            >
-              <SelectTrigger id="category">
-                <SelectValue placeholder="Select category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                {categories.map((category) => (
-                  <SelectItem key={category} value={category}>
-                    {category}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+    <div className="space-y-4">
+      <div>
+        <label htmlFor="category" className="block text-sm font-medium text-gray-700">
+          Category
+        </label>
+        <select
+          id="category"
+          name="category"
+          value={filters.category}
+          onChange={handleChange}
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+        >
+          <option value="all">All Categories</option>
+          {categories.map((category) => (
+            <option key={category} value={category}>
+              {category}
+            </option>
+          ))}
+        </select>
+      </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="minPrice">Min Price</Label>
-              <Input
-                id="minPrice"
-                type="number"
-                value={filters.minPrice}
-                onChange={(e) =>
-                  onFilterChange({
-                    ...filters,
-                    minPrice: Number(e.target.value),
-                  })
-                }
-                min={0}
-              />
-            </div>
-            <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="maxPrice">Max Price</Label>
-              <Input
-                id="maxPrice"
-                type="number"
-                value={filters.maxPrice}
-                onChange={(e) =>
-                  onFilterChange({
-                    ...filters,
-                    maxPrice: Number(e.target.value),
-                  })
-                }
-                min={0}
-              />
-            </div>
-          </div>
+      <div>
+        <label htmlFor="minPrice" className="block text-sm font-medium text-gray-700">
+          Min Price (UGX)
+        </label>
+        <input
+          type="number"
+          id="minPrice"
+          name="minPrice"
+          value={filters.minPrice}
+          onChange={handleChange}
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+        />
+      </div>
 
-          <div className="flex flex-col space-y-1.5">
-            <Label htmlFor="sortBy">Sort By</Label>
-            <Select
-              value={filters.sortBy}
-              onValueChange={(value: FilterOptions['sortBy']) =>
-                onFilterChange({ ...filters, sortBy: value })
-              }
-            >
-              <SelectTrigger id="sortBy">
-                <SelectValue placeholder="Select sorting" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="price-asc">Price: Low to High</SelectItem>
-                <SelectItem value="price-desc">Price: High to Low</SelectItem>
-                <SelectItem value="name-asc">Name: A to Z</SelectItem>
-                <SelectItem value="name-desc">Name: Z to A</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+      <div>
+        <label htmlFor="maxPrice" className="block text-sm font-medium text-gray-700">
+          Max Price (UGX)
+        </label>
+        <input
+          type="number"
+          id="maxPrice"
+          name="maxPrice"
+          value={filters.maxPrice}
+          onChange={handleChange}
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+        />
+      </div>
+
+      <div>
+        <label htmlFor="sortBy" className="block text-sm font-medium text-gray-700">
+          Sort By
+        </label>
+        <select
+          id="sortBy"
+          name="sortBy"
+          value={filters.sortBy}
+          onChange={handleChange}
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+        >
+          <option value="price-asc">Price: Low to High</option>
+          <option value="price-desc">Price: High to Low</option>
+          <option value="name-asc">Name: A to Z</option>
+          <option value="name-desc">Name: Z to A</option>
+        </select>
+      </div>
+    </div>
   );
-};
-
-export default ProductFilters;
+}

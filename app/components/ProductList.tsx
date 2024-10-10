@@ -1,26 +1,41 @@
-// components/ProductList.tsx
 import React from 'react';
-import Link from 'next/link';
 import { Product } from '../types/types';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
-interface Props {
-  products: Product[];
-}
+export default function ProductsList({ products }: { products: Product[] }) {
+  const router = useRouter();
 
-const ProductsList: React.FC<Props> = ({ products }) => {
+  // Helper function to format price
+  const formatPrice = (price: number | string | undefined) => {
+    if (typeof price === 'number') {
+      return price.toFixed(2);
+    } else if (typeof price === 'string') {
+      const numberPrice = parseFloat(price);
+      return isNaN(numberPrice) ? 'N/A' : numberPrice.toFixed(2);
+    }
+    return 'N/A';
+  };
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {products.map((product) => (
-        <Link href={`/product/${product.id}`} key={product.id}>
-          <div className="border rounded-lg p-4 shadow-md cursor-pointer bg-white dark:bg-gray-800">
-            <img src={product.imageUrl} alt={product.title} className="w-full h-48 object-cover mb-4" />
-            <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200">{product.title}</h3>
-            <p className="text-lg text-gray-600 dark:text-gray-300">{product.price} Ugx</p>
+        <Link 
+          href={`/product/${product.id}`} 
+          key={product.id}
+        >
+          <div className="border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+            <img 
+              src={product.imageUrl} 
+              alt={product.title} 
+              className="w-full h-48 object-cover mb-4" 
+            />
+            <h2 className="text-lg font-semibold">{product.title}</h2>
+            <p className="text-gray-600">{product.category}</p>
+            <p className="text-lg font-bold mt-2">{formatPrice(product.price)} Ugx</p>
           </div>
         </Link>
       ))}
     </div>
   );
-};
-
-export default ProductsList;
+}
