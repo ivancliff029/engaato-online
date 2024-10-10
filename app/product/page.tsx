@@ -1,5 +1,5 @@
-"use client"
-import React from 'react';
+"use client";
+import React, { useEffect, useState } from 'react';
 import { db } from '../lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import { Product, FilterOptions } from '../types/types';
@@ -19,14 +19,16 @@ import { Button } from "../components/ui/button";
 
 const ITEMS_PER_PAGE = 9;
 
-export default async function ProductPage() {
+export default function ProductPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const page = Number(searchParams.get('page')) || 1;
-  
-  // Fetch all products and categories
-  const { products, categories } = await getProductsAndCategories();
-  
+
+  // States to hold fetched data and filters
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
   // Get current filter values from URL params
   const currentFilters: FilterOptions = {
     category: searchParams.get('category') || 'all',
@@ -34,6 +36,18 @@ export default async function ProductPage() {
     maxPrice: Number(searchParams.get('maxPrice')) || 200000,
     sortBy: (searchParams.get('sortBy') as FilterOptions['sortBy']) || 'price-asc',
   };
+
+  useEffect(() => {
+    // Fetch products and categories when the component mounts
+    const fetchProductsAndCategories = async () => {
+      setIsLoading(true);
+      const { products, categories } = await getProductsAndCategories();
+      setProducts(products);
+      setCategories(categories);
+      setIsLoading(false);
+    };
+    fetchProductsAndCategories();
+  }, []);
 
   // Apply filters and sorting
   const filteredProducts = products
@@ -107,6 +121,10 @@ export default async function ProductPage() {
 
     return range;
   };
+
+  if (isLoading) {
+    return <div>Loading...</div>; // Replace with a spinner or loading component
+  }
 
   return (
     <div className="bg-white min-h-screen">
