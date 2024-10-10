@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Product, FilterOptions } from '../types/types';
 import ProductsList from './ProductList';
 import ProductFilters from './Products/ProductFilters';
+import Earn from '../components/Earn';
 import {
   Pagination,
   PaginationContent,
@@ -124,6 +125,7 @@ export default function ProductPageClient({ initialProducts, categories }: { ini
               filters={currentFilters}
               onFilterChange={handleFilterChange}
             />
+            <Earn />
           </div>
 
           <div className="lg:col-span-3">
