@@ -1,8 +1,7 @@
-// .env
-// FLUTTER_WAVE_PUBLIC_KEY=FLWPUBK-dcfb817b46a22054753f8825fb920e95-X
-
 import React, { useState, useEffect } from "react";
 import { useFlutterwave, closePaymentModal } from "flutterwave-react-v3";
+import { useAuth } from '../context/AuthContext'; // Adjust the import path as needed
+import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 
 // Type for environment variables
 declare global {
@@ -17,22 +16,45 @@ interface CheckoutProps {
   total: number;
   onClose: () => void;
   clearCart: () => void;
-  customerEmail?: string;
-  customerPhone?: string;
-  customerName?: string;
 }
 
 const Checkout: React.FC<CheckoutProps> = ({
   total,
   onClose,
   clearCart,
-  customerEmail = "customer@example.com",
-  customerPhone = "256778054598",
-  customerName = "Ivan Cliff",
 }) => {
   const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // Get current user from AuthContext
+  const { currentUser } = useAuth();
+
+  // Get customer details from the current user
+  const customerEmail = currentUser?.email || "guest@example.com";
+  const [customerPhone, setCustomerPhone] = useState<string>("256778054598");
+  const customerName = currentUser?.displayName || "Guest User";
+
+  // Effect to fetch user's phone number from Firestore
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      if (currentUser) {
+        try {
+          const userDoc = await getDoc(doc(getFirestore(), 'users', currentUser.uid));
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+            if (userData.phone) {
+              setCustomerPhone(userData.phone);
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching user details:", error);
+        }
+      }
+    };
+
+    fetchUserDetails();
+  }, [currentUser]);
 
   // Ensure the public key is available
   const publicKey = process.env.NEXT_PUBLIC_FLUTTER_WAVE_PUBLIC_KEY;
@@ -136,6 +158,15 @@ const Checkout: React.FC<CheckoutProps> = ({
             </h2>
             
             <div className="mb-6">
+              <div className="flex flex-col space-y-2 mb-4">
+                <div className="text-sm text-gray-600 dark:text-gray-300">
+                  <strong>Customer Details:</strong>
+                  <p>Name: {customerName}</p>
+                  <p>Email: {customerEmail}</p>
+                  <p>Phone: {customerPhone}</p>
+                </div>
+              </div>
+
               <div className="flex justify-between mb-2">
                 <span className="text-gray-600 dark:text-gray-300">Total Amount:</span>
                 <span className="font-bold text-gray-900 dark:text-gray-100">
