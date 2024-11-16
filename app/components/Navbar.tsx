@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useCart } from '../context/CartContext';
+import { useCart } from '../context/CartContext';  // Import useCart hook
 import { useAuth } from '../context/AuthContext';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
@@ -29,7 +29,7 @@ const Navbar: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [profileImage, setProfileImage] = useState<string | null>(null);
 
-  const { getCartItemCount, cart, removeFromCart, getTotalPrice } = useCart();
+  const { getCartItemCount, cart, removeFromCart, getTotalPrice, clearCart } = useCart();  // Destructure clearCart from useCart
   const { currentUser, logout } = useAuth();
 
   // Fetch user's profile image from Firestore
@@ -166,6 +166,7 @@ const Navbar: React.FC = () => {
                     <Button className="w-full mt-4" onClick={openCheckout}>
                       Proceed to Checkout
                     </Button>
+                    <Button className="w-full mt-4" onClick={clearCart}>Clear Cart</Button> {/* Add Clear Cart Button */}
                   </div>
                 </div>
               )}
@@ -221,7 +222,7 @@ const Navbar: React.FC = () => {
       </Sheet>
 
       {/* Checkout Modal */}
-      {isCheckoutOpen && <Checkout total={getTotalPrice()} onClose={closeCheckout} />}
+      {isCheckoutOpen && <Checkout total={getTotalPrice()} onClose={closeCheckout} clearCart={clearCart}/>}
     </nav>
   );
 };

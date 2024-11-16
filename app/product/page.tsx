@@ -15,5 +15,4 @@ export default async function ProductPage() {
     <Suspense fallback={<div>Loading products...</div>}>
       <ProductPageClient initialProducts={products} categories={categories} />;
     </Suspense>
-  )
-}
+  )}

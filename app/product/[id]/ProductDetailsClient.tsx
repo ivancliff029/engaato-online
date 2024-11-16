@@ -39,7 +39,6 @@ export default function ProductDetailsClient({ product }: ProductDetailsClientPr
     }
     addToCart(product, 1);
     setAddedToCart(true);
-    alert(`Added ${product.title} to cart!`);
   };
 
   const calculatedOriginalPrice = product.price * 1.15;

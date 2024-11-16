@@ -8,6 +8,7 @@ interface CartContextType {
   removeFromCart: (productId: string) => void;
   getCartItemCount: () => number;
   getTotalPrice: () => number;
+  clearCart: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -60,6 +61,11 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     setCart((prevCart) => prevCart.filter((item) => item.id !== productId));
   };
 
+  const clearCart = () => {
+    setCart([]);  // Clear the cart state
+    localStorage.removeItem('cart');  // Remove the cart from localStorage
+  };
+
   const getCartItemCount = () => {
     return cart.reduce((count, item) => count + 1, 0);
   };
@@ -70,7 +76,7 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <CartContext.Provider
-      value={{ cart, addToCart, removeFromCart, getCartItemCount, getTotalPrice }}
+      value={{ cart, addToCart, removeFromCart, clearCart, getCartItemCount, getTotalPrice }}
     >
       {children}
     </CartContext.Provider>
