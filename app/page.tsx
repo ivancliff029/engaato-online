@@ -12,7 +12,7 @@ export default function Home() {
     <CartProvider>
       <Welcome />
       <AboutSection 
-        title="Engaato Online  Step into the Future" 
+        title="Freshest Kicks around town" 
         subTitle="Performance, Style, and Innovation" 
       />
       <ThirtyPercentOff />

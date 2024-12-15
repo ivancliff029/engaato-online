@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useFlutterwave, closePaymentModal } from "flutterwave-react-v3";
-import { useAuth } from '../context/AuthContext'; // Adjust the import path as needed
-import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
+import { useAuth } from "../context/AuthContext";
+import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
 
-// Type for environment variables
 declare global {
   namespace NodeJS {
     interface ProcessEnv {
@@ -12,35 +11,47 @@ declare global {
   }
 }
 
+interface Product {
+  id: string;
+  title: string;
+  imageUrl: string;
+  description: string;
+  colors: string;
+  sizes: number;
+  category: string;
+  price: number;
+  quantity: number;
+}
+
 interface CheckoutProps {
   total: number;
   onClose: () => void;
   clearCart: () => void;
+  cartItems: Product[] | undefined;
 }
 
 const Checkout: React.FC<CheckoutProps> = ({
   total,
   onClose,
   clearCart,
+  cartItems,
 }) => {
   const [paymentStatus, setPaymentStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
-  // Get current user from AuthContext
-  const { currentUser } = useAuth();
 
-  // Get customer details from the current user
+  const { currentUser } = useAuth();
   const customerEmail = currentUser?.email || "guest@example.com";
   const [customerPhone, setCustomerPhone] = useState<string>("256778054598");
   const customerName = currentUser?.displayName || "Guest User";
 
-  // Effect to fetch user's phone number from Firestore
   useEffect(() => {
     const fetchUserDetails = async () => {
       if (currentUser) {
         try {
-          const userDoc = await getDoc(doc(getFirestore(), 'users', currentUser.uid));
+          const userDoc = await getDoc(
+            doc(getFirestore(), "users", currentUser.uid)
+          );
           if (userDoc.exists()) {
             const userData = userDoc.data();
             if (userData.phone) {
@@ -56,11 +67,12 @@ const Checkout: React.FC<CheckoutProps> = ({
     fetchUserDetails();
   }, [currentUser]);
 
-  // Ensure the public key is available
   const publicKey = process.env.NEXT_PUBLIC_FLUTTER_WAVE_PUBLIC_KEY;
 
   if (!publicKey) {
-    console.error("Flutterwave public key is not defined in environment variables");
+    console.error(
+      "Flutterwave public key is not defined in environment variables"
+    );
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
@@ -96,14 +108,59 @@ const Checkout: React.FC<CheckoutProps> = ({
 
     try {
       await handlePayment({
-        callback: (response) => {
+        callback: async (response) => {
           console.log("Payment Response:", response);
+
+          const processedProducts = Array.isArray(cartItems)
+            ? cartItems.map((item) => ({
+                id: item.id,
+                title: item.title || "Unknown Product",
+                price: item.price,
+                quantity: item.quantity || 1,
+                imageUrl: item.imageUrl || "",
+                details: {
+                  description: item.description || "",
+                  category: item.category || "",
+                  colors: item.colors || "",
+                  sizes: item.sizes || 0,
+                },
+              }))
+            : [];
+
+          const productTitles = processedProducts
+            .map((item) => item.title)
+            .join(", ");
+
           if (response.status === "successful") {
             setPaymentStatus("success");
             clearCart();
-            
-            // Optional: Save transaction details to your backend
-            // await saveTransactionDetails(response);
+
+            const db = getFirestore();
+
+            const transactionDetails = {
+              transactionId: response.transaction_id,
+              amount: total,
+              currency: "UGX",
+              customer: {
+                name: customerName,
+                email: customerEmail,
+                phone: customerPhone,
+              },
+              status: response.status,
+              date: new Date().toISOString(),
+              products: processedProducts,
+              productTitles,
+            };
+
+            try {
+              await setDoc(
+                doc(db, "transactions", String(response.transaction_id)),
+                transactionDetails
+              );
+              console.log("Transaction details saved to Firestore:", transactionDetails);
+            } catch (saveError) {
+              console.error("Error saving transaction details:", saveError);
+            }
           } else {
             setPaymentStatus("failed");
             setError("Payment was not successful. Please try again.");
@@ -118,7 +175,9 @@ const Checkout: React.FC<CheckoutProps> = ({
     } catch (error) {
       console.error("Payment error:", error);
       setPaymentStatus("failed");
-      setError("An error occurred while processing your payment. Please try again.");
+      setError(
+        "An error occurred while processing your payment. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -128,9 +187,9 @@ const Checkout: React.FC<CheckoutProps> = ({
     if (paymentStatus === "success") {
       const timer = setTimeout(() => {
         setPaymentStatus(null);
-        onClose(); // Close the checkout modal after successful payment
+        onClose();
       }, 2000);
-      
+
       return () => clearTimeout(timer);
     }
   }, [paymentStatus, onClose]);
@@ -156,7 +215,7 @@ const Checkout: React.FC<CheckoutProps> = ({
             <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">
               Checkout Summary
             </h2>
-            
+
             <div className="mb-6">
               <div className="flex flex-col space-y-2 mb-4">
                 <div className="text-sm text-gray-600 dark:text-gray-300">
@@ -168,12 +227,14 @@ const Checkout: React.FC<CheckoutProps> = ({
               </div>
 
               <div className="flex justify-between mb-2">
-                <span className="text-gray-600 dark:text-gray-300">Total Amount:</span>
+                <span className="text-gray-600 dark:text-gray-300">
+                  Total Amount:
+                </span>
                 <span className="font-bold text-gray-900 dark:text-gray-100">
                   {total.toLocaleString()} UGX
                 </span>
               </div>
-              
+
               <div className="text-sm text-gray-500 dark:text-gray-400 mb-4">
                 Payment processed securely via Flutterwave
               </div>
@@ -187,9 +248,25 @@ const Checkout: React.FC<CheckoutProps> = ({
               >
                 {loading ? (
                   <span className="flex items-center justify-center">
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    <svg
+                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
                     </svg>
                     Processing Payment...
                   </span>
@@ -197,11 +274,10 @@ const Checkout: React.FC<CheckoutProps> = ({
                   "Continue to Payment"
                 )}
               </button>
-              
+
               <button
                 onClick={onClose}
-                disabled={loading}
-                className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-3 rounded w-full hover:bg-gray-200 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                className="bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-3 rounded w-full hover:bg-gray-400 dark:hover:bg-gray-600 transition-colors duration-200"
               >
                 Cancel
               </button>

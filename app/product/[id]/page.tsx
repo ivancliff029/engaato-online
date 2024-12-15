@@ -113,7 +113,6 @@ const AddToCartButton = ({ product }: { product: Product }) => {
   const handleAddToCart = () => {
     addToCart(product, 1);
     setAddedToCart(true);
-    alert(`Added ${product.title} to cart!`);
   };
 
   return (

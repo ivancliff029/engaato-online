@@ -8,6 +8,7 @@ import ProductManagementContent from "../components/ProductManagementContent";
 import ProfileContent from "../components/ProfileContent";
 import ReportsContent from "../components/ReportsContent";
 import HomeContent from "../components/HomeContent";
+import OrdersPage from "../components/OrdersPage";
 
 // Sidebar Link Interface
 interface SidebarLink {
@@ -104,7 +105,11 @@ const Dashboard: React.FC = () => {
     links.push({
       id: "product-management",
       label: "Manage",
-    });
+    },{
+      id : "orders",
+      label : "Orders"
+    },
+  );
   }
 
   // Toggle Sidebar Function
@@ -125,6 +130,8 @@ const Dashboard: React.FC = () => {
         return <ReportsContent />;
       case "product-management":
         return <ProductManagementContent />;
+      case "orders":
+        return <OrdersPage />;
       default:
         return <HomeContent userEmail={currentUser?.email || undefined} lastName={lastName} />;
     }

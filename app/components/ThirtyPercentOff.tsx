@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
 const ThirtyPercentOff: React.FC = () => {
-  
   const images = [
     "/img/31.webp",
     "/img/32.jpg",
@@ -19,34 +18,46 @@ const ThirtyPercentOff: React.FC = () => {
 
     return () => clearInterval(intervalId);
   }, [images.length]);
-  
+
   return (
     <div className="container mx-auto mt-8 p-4 dark:bg-gray-900">
-      <h2 className="text-3xl font-bold mb-4 text-gray-900 dark:text-white">30% Off</h2>
-      <div className="flex flex-col md:flex-row">
-        <div className="md:w-1/2 md:pr-4 mb-4 md:mb-0">
-          <div className="fixed-height-container">
-            <img src={images[currentImageIndex]} alt="Product Full" className="w-full h-full object-cover rounded-lg shadow-md" />
+      <h2 className="text-4xl font-extrabold mb-6 text-center text-gray-900 dark:text-white tracking-wide">
+        🔥 30% Off Limited Time Only!
+      </h2>
+      <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
+        <div className="lg:w-1/2">
+          <div className="relative w-full h-[400px] rounded-lg overflow-hidden shadow-xl">
+            <img
+              src={images[currentImageIndex]}
+              alt="Product Full"
+              className="w-full h-full object-cover transition-all duration-500"
+            />
+            <div className="absolute bottom-4 left-4 bg-black bg-opacity-50 text-white px-3 py-1 rounded-md">
+              Air Jordan 6 - Jack Cactus
+            </div>
           </div>
         </div>
-        <div className="md:w-1/2 md:pl-4">
-          <div className="border rounded-lg overflow-hidden shadow-md p-4 h-full bg-white dark:bg-gray-800 dark:border-gray-700">
-            <h2 className="text-2xl font-semibold mb-4 text-gray-900 dark:text-gray-200">Air Jordan 6 - Jack Cactus</h2>
-            <p className="text-base text-gray-700 mb-4 dark:text-gray-400">
-              The Jordan 6 Travis Scott is a highly coveted sneaker, celebrated for its unique design and premium materials. With a 30% discount, this is an exceptional chance to own a piece of sneaker history at a more affordable price. Perfect for fans of Travis Scott and Jordan Brand, as well as sneaker enthusiasts alike, this sale is not to be missed.
-            </p>
-            <p className="text-lg font-semibold text-gray-900 dark:text-gray-200">
-              150,000 Ugx <del className="text-red-500"> 200,000 Ugx</del>
-            </p>
-            <button className="bg-blue-500 text-white px-4 py-2 rounded-md mt-2 hover:bg-blue-600 focus:outline-none dark:bg-blue-700 dark:hover:bg-blue-800">
-              Shop Now
-            </button>
-          </div>
+        <div className="lg:w-1/2 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+          <h2 className="text-3xl font-bold mb-4 text-gray-900 dark:text-gray-200">
+            Air Jordan 6 - Jack Cactus
+          </h2>
+          <p className="text-lg leading-relaxed mb-6 text-gray-700 dark:text-gray-400">
+            The Jordan 6 Travis Scott is a highly coveted sneaker, celebrated for its unique design and premium materials. With a 30% discount, this is your chance to own a piece of sneaker history at an unbeatable price. Perfect for sneaker enthusiasts and Travis Scott fans alike.
+          </p>
+          <p className="text-xl font-semibold text-gray-900 dark:text-gray-200 mb-6">
+            <span className="text-green-500">150,000 Ugx</span>
+            <del className="text-red-500 ml-4">200,000 Ugx</del>
+          </p>
+          <button className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-full font-semibold tracking-wide shadow-md hover:opacity-90 transition-opacity duration-300 focus:outline-none">
+            🛒 Shop Now
+          </button>
         </div>
       </div>
       <style jsx>{`
-        .fixed-height-container {
-          height: 400px; /* Set a fixed height for the container */
+        @media (min-width: 1024px) {
+          .lg\:w-1\/2 {
+            flex: 1;
+          }
         }
       `}</style>
     </div>
