@@ -22,7 +22,7 @@
     },
     "types": ["firebase/firestore"] 
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/context/CartContext.tsx", "app/components/Checkout.js", "app/components/Welcome.js", "app/components/Navbar.js", "app/components/LatestArrivals.js", "app/components/ThirtyPercentOff.js", "app/components/AboutSection.js", "app/components/ProductPageClient.js", "app/components/ProductList.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/context/CartContext.tsx", "app/components/Checkout.js", "app/components/Welcome.js", "app/components/Navbar.js", "app/components/LatestArrivals.js", "app/components/ThirtyPercentOff.js", "app/components/AboutSection.js", "app/components/ProductPageClient.js", "app/components/ProductList.js", "app/product/[id]/ProductDetailsClient.js", "app/product/[id]/page.js"],
   "exclude": ["node_modules"]
 }
 
