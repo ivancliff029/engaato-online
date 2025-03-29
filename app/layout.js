@@ -1,24 +1,21 @@
+// app/layout.js
 import React from 'react';
-import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
+import FooterWrapper from "./components/FooterWrapper";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
+export const metadata = {
   title: "Engaato Online",
   description: "Step into Style, Comfort, and Confidence.",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${inter.className} flex flex-col min-h-screen bg-white dark:bg-gray-900`}>
@@ -32,8 +29,10 @@ export default function RootLayout({
               {children}
             </main>
             
-            {/* Footer at the bottom of every page */}
-            <Footer />
+            {/* FooterWrapper will conditionally render the Footer */}
+            <FooterWrapper>
+              <Footer />
+            </FooterWrapper>
           </CartProvider>
         </AuthProvider>
       </body>
