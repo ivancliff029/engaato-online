@@ -16,7 +16,7 @@ const DashboardPage = () => {
 
   // Show a loading state while checking auth
   if (loading) {
-    return <p>Loading...</p>;
+    return <div>Loading...</div>;
   }
 
   // If user is not logged in and loading is false, they will be redirected
