@@ -2,7 +2,7 @@ import { db, storage } from "../lib/firebase";
 import React, { useState, useEffect } from 'react';
 import TabsRender from './Dashboard/OrderTab';
 import { Clock, Calendar, TrendingUp, DollarSign, Package } from 'lucide-react';
-import { collection, getDocs, query, where, onSnapshot, doc } from 'firebase/firestore';
+import { collection, getDocs, query, where, onSnapshot, doc, getDoc } from 'firebase/firestore';
 import { useAuth } from '../context/AuthContext';
 
 const HomeContent = ({ userEmail }) => {
