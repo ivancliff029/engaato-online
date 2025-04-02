@@ -93,7 +93,7 @@ const Dashboard = () => {
   const [activeLinkId, setActiveLinkId] = useState("home");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const { currentUser, userRole } = useAuth();
-  const [lastName, setLastName] = useState<string | undefined>(undefined);
+  const [lastName, setLastName] = useState(undefined);
 
   // Define Sidebar Links
   const links = [
