@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import ProductsList from './ProductList';
 import ProductFilters from './Products/ProductFilters';
 import Earn from '../components/Earn';
@@ -14,6 +14,8 @@ import {
 } from "./ui/pagination";
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { collection, query, where, onSnapshot, orderBy } from 'firebase/firestore';
+import { db } from '../lib/firebase'; 
 
 const ITEMS_PER_PAGE = 9;
 
@@ -23,13 +25,14 @@ const parsePrice = (price) => {
   return parseFloat(price.replace(/[^\d.-]/g, '')) || 0;
 };
 
-const ProductPageClient = ({ initialProducts, categories }) => {
+const ProductPageClient = ({ initialCategories }) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const page = Number(searchParams.get('page')) || 1;
 
-  const [products] = useState(initialProducts);
-  const [isLoading] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [categories, setCategories] = useState(initialCategories || []);
 
   const currentFilters = {
     category: searchParams.get('category') || 'all',
@@ -38,31 +41,59 @@ const ProductPageClient = ({ initialProducts, categories }) => {
     sortBy: searchParams.get('sortBy') || 'price-asc',
   };
 
+  // Real-time products subscription
+  useEffect(() => {
+    setIsLoading(true);
+    
+    // Base query for products collection
+    let productsQuery = collection(db, 'products');
+    
+    // Apply category filter if not 'all'
+    if (currentFilters.category !== 'all') {
+      productsQuery = query(productsQuery, where('category', '==', currentFilters.category));
+    }
+    
+    // Apply price range filter
+    productsQuery = query(
+      productsQuery, 
+      where('price', '>=', currentFilters.minPrice),
+      where('price', '<=', currentFilters.maxPrice)
+    );
+    
+    // Apply sorting
+    const [sortField, sortDirection] = currentFilters.sortBy.split('-');
+    productsQuery = query(
+      productsQuery,
+      orderBy(sortField, sortDirection === 'asc' ? 'asc' : 'desc')
+    );
+
+    const unsubscribe = onSnapshot(productsQuery, (snapshot) => {
+      const productsData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setProducts(productsData);
+      setIsLoading(false);
+      
+      // Update categories if we don't have them yet
+      if (!initialCategories || initialCategories.length === 0) {
+        const uniqueCategories = [...new Set(productsData.map(p => p.category))];
+        setCategories(uniqueCategories);
+      }
+    }, (error) => {
+      console.error("Error fetching products:", error);
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [currentFilters.category, currentFilters.minPrice, currentFilters.maxPrice, currentFilters.sortBy]);
+
   const filteredProducts = useMemo(() => {
-    return products
-      .filter(product => {
-        if (currentFilters.category !== 'all' && product.category !== currentFilters.category) return false;
-        const productPrice = parsePrice(product.price);
-        if (productPrice < currentFilters.minPrice || productPrice > currentFilters.maxPrice) return false;
-        return true;
-      })
-      .sort((a, b) => {
-        const priceA = parsePrice(a.price);
-        const priceB = parsePrice(b.price);
-        switch (currentFilters.sortBy) {
-          case 'price-asc':
-            return priceA - priceB;
-          case 'price-desc':
-            return priceB - priceA;
-          case 'name-asc':
-            return a.title.localeCompare(b.title);
-          case 'name-desc':
-            return b.title.localeCompare(a.title);
-          default:
-            return 0;
-        }
-      });
-  }, [products, currentFilters]);
+    return products.filter(product => {
+      const productPrice = parsePrice(product.price);
+      return productPrice >= currentFilters.minPrice && productPrice <= currentFilters.maxPrice;
+    });
+  }, [products, currentFilters.minPrice, currentFilters.maxPrice]);
 
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
   const startIndex = (page - 1) * ITEMS_PER_PAGE;
@@ -153,7 +184,14 @@ const ProductPageClient = ({ initialProducts, categories }) => {
             className="lg:col-span-3"
           >
             <AnimatePresence>
-              <ProductsList products={paginatedProducts} />
+              {paginatedProducts.length > 0 ? (
+                <ProductsList products={paginatedProducts} />
+              ) : (
+                <div className="text-center py-12">
+                  <h3 className="text-lg font-medium text-gray-900">No products found</h3>
+                  <p className="mt-2 text-gray-500">Try adjusting your filters</p>
+                </div>
+              )}
             </AnimatePresence>
             
             {totalPages > 1 && (
